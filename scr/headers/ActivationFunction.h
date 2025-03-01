@@ -11,6 +11,7 @@ public:
     // virtual double derivative(double x) const = 0;
     virtual Eigen::VectorXd activate(const Eigen::VectorXd& vec) const = 0;
     virtual Eigen::VectorXd derivative(const Eigen::VectorXd& vec) const = 0;
+    virtual std::string getType() const = 0;
 
     // virtual Eigen::VectorXd activate(const Eigen::VectorXd vec) const {
     //     Eigen::VectorXd result(vec.size());
@@ -56,6 +57,10 @@ public:
         }
         return result;
     }
+
+    std::string getType() const override {
+        return "ReLU";
+    }
 };
 
 class Sigmoid : public ActivationFunction {
@@ -85,6 +90,10 @@ public:
         }
         return result;
     }
+
+    std::string getType() const override {
+        return "Sigmoid";
+    }
 };
 
 class Softmax : public ActivationFunction {
@@ -99,6 +108,9 @@ class Softmax : public ActivationFunction {
         return Eigen::VectorXd(0);
     }
 
+    std::string getType() const override {
+        return "Softmax";
+    }
 };
 
 class ActivationCreation {
@@ -106,7 +118,7 @@ public:
     static std::shared_ptr<ActivationFunction> create(const std::string& type) {
         if (type == "ReLU") return std::make_shared<ReLU>();
         if (type == "Sigmoid") return std::make_shared<Sigmoid>();
-        throw std::invalid_argument("Unknown activation function: " + type);
+        throw std::invalid_argument("Неизвестный тип активационной функции: " + type);
     }
 };
 

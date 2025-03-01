@@ -19,10 +19,24 @@ int main() {
     int train_size = 6000;
     std::vector<Eigen::VectorXd> X(train_images.begin(), train_images.begin() + train_size);
     std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
+
+    // std::cout << "По факту: \n";
+    // for (int i = 0; i < 30; ++i) std::cout << train_labels_int[i] << " ";
+    // std::cout << "\n";
+
+    // std::cout << "Сначала предсказано: \n";
+    // for (int i = 0; i < 30; ++i) std::cout << net.predict(X[i]) << " ";
+    // std::cout << "\n";
     
     net.train_SGD(X, Y, 3, 1, 100);
-    
-    net.SaveWeights("../models data/temporary weights");
+
+    // std::cout << "Потом предсказано: \n";
+    // for (int i = 0; i < 30; ++i) {
+    //     std::cout << net.predict(X[i]) << " ";
+    // }
+    // std::cout << "\n";
+
+    net.SaveNet("../models data/temporary weights");
 
     return 0;
 }

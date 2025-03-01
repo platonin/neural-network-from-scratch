@@ -3,31 +3,15 @@
 
 #include "LossFunction.h"
 #include "DataLoader.h"
+#include "NetTypes.h"
 
 #include <iomanip> //это для вывода, надо убрать потом будет
-
-struct forwardData {
-    Eigen::VectorXd z;
-    Eigen::VectorXd x;
-};
-
-struct layerGradData {
-    Eigen::MatrixXd grad_W;
-    Eigen::VectorXd grad_b;
-};
-
-struct LayerParams {
-    int inputSize;
-    int outputSize;
-    std::string activationType;
-};
 
 class Net {
 public:
     std::shared_ptr<DistanceFunction> distance_;
     std::shared_ptr<LossFunction> loss_;
     int numbersOfLayers_;
-
     std::vector<std::shared_ptr<Layer>> layers_;
 
 public:
@@ -40,14 +24,39 @@ public:
         }
     }
 
-    // сохранение всех матриц весов и сдвигов в txt файлы с названиями "L" + "<номер слоя>" + "<W или b>.txt" 
-    void SaveWeights(std::string path) {
+    Net(std::vector<LayerParams> layersParams, std::vector<std::shared_ptr<Layer>> layers) : 
+    distance_(std::make_shared<SquaredNorm>()), 
+    loss_(std::make_shared<MSE>()), 
+    numbersOfLayers_(layersParams.size()), 
+    layers_(layers) {}
+
+    // сохранение конфигурации сети, всех матриц весов и сдвигов в txt файлы с названиями "L" + "<номер слоя>" + "<W или b>.txt" 
+    void SaveNet(std::string path) {
+        std::string config = std::to_string(numbersOfLayers_) + "\n";
         for (int l = 0; l < numbersOfLayers_; ++l) {
+            config += std::to_string(layers_[l]->GetInputSize()) + " ";
+            config += std::to_string(layers_[l]->GetOutputSize()) + " ";
+            config += layers_[l]->activationFunction_->getType() + "\n";
+
             std::string name_W = "/L" + std::to_string(l) + "W.txt"; 
             std::string name_b = "/L" + std::to_string(l) + "b.txt";
             DataLoader::saveMatrix(layers_[l]->GetW(), path + name_W);
             DataLoader::saveMatrix(layers_[l]->GetB(), path + name_b);
         }
+        std::string configFileName = path + "/config.txt";
+        std::ofstream fileConfig(configFileName);
+        fileConfig << config;
+        fileConfig.close();
+    }
+
+
+    void setLayers(std::vector<std::shared_ptr<Layer>>& layers) {
+        if (layers.size() != numbersOfLayers_) {
+            std::cout << "Некорректные данные слоев.\n";
+            return;
+        }
+
+        layers_ = std::move(layers); // или тут не надо move ?
     }
 
     std::vector<std::vector<forwardData>> forward_propagation(std::vector<Eigen::VectorXd>& X) {
@@ -138,7 +147,7 @@ public:
 
                 print_progress(round((double)i/(numberOfBatch-1) * 100));
             }
-            SaveWeights("../models data/temporary weights"); // пока после каждой эпохи сохраняются веса, но вообще надо сделать это опциональным аргументом, чтобы можно было выбрать сохранять или нет
+            SaveNet("../models data/temporary weights"); // пока после каждой эпохи сохраняются веса, но вообще надо сделать это опциональным аргументом, чтобы можно было выбрать сохранять или нет
         }
         
         std::cout << "\nОбучение завершено. Точность на тренировочной выборке: " << accuracity(X, Y) * 100.0 << "%\n";
@@ -149,8 +158,13 @@ public:
         Eigen::VectorXd x_i = x0;
         Eigen::VectorXd z_i;
         for (int l = 0; l < numbersOfLayers_; ++l) {
+            // std::cout << "в predict слой " << l << "\n";
+            layers_[0];
+            // std::cout << "------" << "\n";
             z_i = layers_[l]->CalculateZ(x_i);
+            // std::cout << "------" << "\n";
             x_i = layers_[l]->CalculateX(z_i);
+            // std::cout << "------" << "\n";
         }
         
         int mx_ind = 0;

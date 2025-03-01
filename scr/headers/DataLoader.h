@@ -7,6 +7,12 @@
 // #include <opencv2/opencv.hpp>
 #include <Eigen/Dense>
 #include <iomanip>
+#include <stdexcept>
+#include "NetTypes.h"
+#include "Layer.h"
+
+
+class Net;
 
 namespace DataLoader {
     using namespace std;
@@ -174,6 +180,47 @@ namespace DataLoader {
     
         file.close();
         return vector;
+    }
+
+    // передаем путь к папке с файлом config.txt
+    std::vector<LayerParams> loadNetConfig(std::string pathToConfig) {
+        std::ifstream file(pathToConfig + "/config.txt");
+        if (!file.is_open()) {
+            std::cerr << "Ошибка: не удалось открыть файл " << pathToConfig << "\n";
+            return std::vector<LayerParams>();
+        }
+
+        int countLayers;
+        file >> countLayers;
+        std::vector<LayerParams> config(countLayers);
+        for (int i = 0; i < countLayers; ++i) {
+            int inputSize;
+            int outputSize;
+            std::string activation;
+            file >> inputSize >> outputSize >> activation;
+            config[i] = {inputSize, outputSize, activation};
+        }
+        return config;
+    }
+
+    std::vector<std::shared_ptr<Layer>> loadLayers(std::string pathToConfig) { 
+        std::vector<LayerParams> params = loadNetConfig(pathToConfig);
+        int countLyers = params.size();
+        std::vector<std::shared_ptr<Layer>> layers(countLyers);
+        for (int l = 0; l < countLyers; ++l) {
+            std::string pathW = pathToConfig + "/L" + std::to_string(l) + "W.txt";
+            std::string pathB = pathToConfig + "/L" + std::to_string(l) + "b.txt";
+            std::string activation_name = params[l].activationType;
+            layers[l] = std::make_shared<Layer>(loadMatrix(pathW), loadVector(pathB), ActivationCreation::create(activation_name));
+        }
+
+        // std::cout << layers.size() << "\n";
+        // for (int i = 0; i < layers.size(); ++i) {
+        //     std::cout << layers[i]->GetInputSize() << " " << layers[i]->GetOutputSize() << "\n";
+        //     std::cout << layers[i]->GetW().cols() << " " << layers[i]->GetW().rows() << "\n\n";
+        // }
+        // std::cout << layers[2]->GetB().transpose() << "\n";
+        return layers;
     }
 };
 

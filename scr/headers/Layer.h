@@ -11,10 +11,6 @@ public:
     int outputSize_;
     Eigen::MatrixXd W_;
     Eigen::VectorXd b_;
-
-    // Eigen::VectorXd z_;
-    // Eigen::VectorXd x_;
-    // Eigen::VectorXd grad_b_; // это u_i который пробрасывать в i-1 слой
     std::shared_ptr<ActivationFunction> activationFunction_;
     
     Eigen::MatrixXd initialize_weights_xavier_normal() {
@@ -39,6 +35,10 @@ public:
 
         b_.setZero();
     }
+
+    Layer(Eigen::MatrixXd W, Eigen::VectorXd b, std::shared_ptr<ActivationFunction> func) : 
+    W_(W), b_(b), inputSize_(W.cols()), outputSize_(W.rows()), activationFunction_(func) {}
+
     // считает z, получая выходной вектор prev_x из предыдущего слоя
     Eigen::VectorXd CalculateZ(const Eigen::VectorXd& prev_x) {
         return W_ * prev_x + b_;
