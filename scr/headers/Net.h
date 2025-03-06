@@ -4,29 +4,30 @@
 #include "LossFunction.h"
 #include "DataLoader.h"
 #include "NetTypes.h"
+#include "ActivationFunction.h"
 
 #include <iomanip> //это для вывода, надо убрать потом будет 
 
 class Net {
 public:
-    std::shared_ptr<DistanceFunction> distance_;
-    std::shared_ptr<LossFunction> loss_;
+    // std::shared_ptr<DistanceFunction> distance_;
+    // std::shared_ptr<LossFunction> loss_;
+    LossFunc loss_;
     int numbersOfLayers_;
     std::vector<std::shared_ptr<Layer>> layers_;
 
 public:
-    Net(std::vector<LayerParams> layersParams) : distance_(std::make_shared<SquaredNorm>()), loss_(std::make_shared<MSE>()), numbersOfLayers_(layersParams.size()) {
+    Net(std::vector<LayerParams> layersParams) : loss_(LossCreation::GetMSE()), numbersOfLayers_(layersParams.size()) {
         for (int i = 0; i < numbersOfLayers_; ++i) {
             int in_size = layersParams[i].inputSize;
             int out_size = layersParams[i].outputSize;
             std::string activation_name = layersParams[i].activationType;
-            layers_.push_back(std::make_shared<Layer>(in_size, out_size, ActivationCreation::create(activation_name))); // ВСЕГДА СИГМОДА СЕЙЧАС, надо в билдере добавить ifы для выбора
+            layers_.push_back(std::make_shared<Layer>(in_size, out_size, ActivationCreation::create(activation_name)));
         }
     }
 
     Net(std::vector<LayerParams> layersParams, std::vector<std::shared_ptr<Layer>> layers) : 
-    distance_(std::make_shared<SquaredNorm>()), 
-    loss_(std::make_shared<MSE>()), 
+    loss_(LossCreation::GetMSE()), 
     numbersOfLayers_(layersParams.size()), 
     layers_(layers) {}
 
@@ -107,8 +108,8 @@ public:
             joint_grad[l].grad_b = Eigen::VectorXd::Zero(layers_[l]->GetOutputSize());
             joint_grad[l].grad_W = Eigen::MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
             for (int i = 0; i < batchSize; ++i) {
-                joint_grad[l].grad_b += gradients_for_batch[i][l].grad_b;
-                joint_grad[l].grad_W += gradients_for_batch[i][l].grad_W;
+                joint_grad[l].grad_b += 1.0/batchSize * gradients_for_batch[i][l].grad_b;
+                joint_grad[l].grad_W += 1.0/batchSize * gradients_for_batch[i][l].grad_W;
             }
         }
 
@@ -133,12 +134,12 @@ public:
 
                 std::vector<Eigen::VectorXd> grads_L_x(batchSize);
                 for (int num_batch = 0; num_batch < batchSize; ++num_batch) {
-                    grads_L_x[num_batch] = loss_->derevativeLoss(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch], distance_, batchSize);
+                    grads_L_x[num_batch] = loss_.lossDerivative(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch]);
                 }
 
                 // вообще это для вывода ошибки после каждой эпохи, но оно как-то криво считается, потом поправлю
                 // for (int num_batch = 0; num_batch < batchSize; ++num_batch) {
-                //     metric += (1.0/X.size()) * loss_->lossSingle(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch], distance_, batchSize);
+                //     metric += (1.0/X.size()) * loss_.lossFunction(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch]);
                 // }
 
                 std::vector<std::vector<layerGradData>> gradients_for_batch = back_propagation(batch_x_i, grads_L_x, layers_forward_data_batch_i);

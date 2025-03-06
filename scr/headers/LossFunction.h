@@ -2,34 +2,71 @@
 #define LOSS_FUNCTION_H
 
 #include "Layer.h"
+#include "ActivationFunction.h"
 
-class LossFunction {
-public:
-    virtual float loss(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::VectorXd>& Y, std::shared_ptr<DistanceFunction> distanceFunction) const = 0;
-    virtual float lossSingle(Eigen::VectorXd& x, Eigen::VectorXd& y, std::shared_ptr<DistanceFunction> distanceFunction, int n) const = 0;
-    //вообще по идее тут не надо передавать размер выборки, тк возможно не для MSE он и не понадобится, но пока пусть так
-    virtual Eigen::VectorXd derevativeLoss(Eigen::VectorXd& x, Eigen::VectorXd& y, std::shared_ptr<DistanceFunction> distanceFunction, int n) const = 0;
-    virtual ~LossFunction() = default;
+// class LossFunction {
+// public:
+//     virtual float loss(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::VectorXd>& Y, std::shared_ptr<DistanceFunction> distanceFunction) const = 0;
+//     virtual float lossSingle(Eigen::VectorXd& x, Eigen::VectorXd& y, std::shared_ptr<DistanceFunction> distanceFunction) const = 0;
+//     //вообще по идее тут не надо передавать размер выборки, тк возможно не для MSE он и не понадобится, но пока пусть так
+//     virtual Eigen::VectorXd derevativeLoss(Eigen::VectorXd& x, Eigen::VectorXd& y, std::shared_ptr<DistanceFunction> distanceFunction, int n) const = 0;
+//     virtual ~LossFunction() = default;
+// };
+
+// class MSE : public LossFunction {
+// public:
+//     float loss(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::VectorXd>& Y, std::shared_ptr<DistanceFunction> distanceFunction) const override {
+//         float ret = 0;
+//         for (int i = 0; i < X.size(); ++i) {
+//             ret += 1.0/X.size() * distanceFunction->distance(X[i], Y[i]);
+//         }
+//         return ret;
+//     }
+
+//     float lossSingle(Eigen::VectorXd& x, Eigen::VectorXd& y, std::shared_ptr<DistanceFunction> distanceFunction) const override {
+//         return 0.5 * (x - y).squaredNorm();
+//     }
+
+//     Eigen::VectorXd derevativeLoss(Eigen::VectorXd& x, Eigen::VectorXd& y, std::shared_ptr<DistanceFunction> distanceFunction, int n) const override {
+//         return (x-y);
+//     }
+
+// };
+
+struct LossFunc {
+    std::function<double(const Eigen::VectorXd&, const Eigen::VectorXd&)> lossFunction;
+    std::function<Eigen::VectorXd(const Eigen::VectorXd&, const Eigen::VectorXd&)> lossDerivative;
+    std::string Type;
 };
 
-class MSE : public LossFunction {
+class LossCreation {
+private:
+    static double MSE(const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
+        return 0.5 * (x - y).squaredNorm();
+    }
+
+    static Eigen::VectorXd MSE_der(const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
+        return (x-y);
+    }
+
+    static double MAE(const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
+        return (x - y).norm();
+    }
+
+    static Eigen::VectorXd MAE_der(const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
+        float norm = (x-y).norm();
+        if (norm == 0) return Eigen::VectorXd::Zero(x.size());
+        return (x-y)/norm; 
+    }
+
 public:
-    float loss(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::VectorXd>& Y, std::shared_ptr<DistanceFunction> distanceFunction) const override {
-        float ret = 0;
-        for (int i = 0; i < X.size(); ++i) {
-            ret += 1.0/X.size() * distanceFunction->distance(X[i], Y[i]);
-        }
-        return ret;
+    static LossFunc GetMSE() {
+        return {&MSE, &MSE_der, "MSE"};
     }
 
-    float lossSingle(Eigen::VectorXd& x, Eigen::VectorXd& y, std::shared_ptr<DistanceFunction> distanceFunction, int n) const override {
-        return 1.0/n * distanceFunction->distance(x, y);
+    static LossFunc GetMAE() {
+        return {&MAE, &MAE_der, "MAE"};
     }
-
-    Eigen::VectorXd derevativeLoss(Eigen::VectorXd& x, Eigen::VectorXd& y, std::shared_ptr<DistanceFunction> distanceFunction, int n) const override {
-        return 1.0/n * distanceFunction->gradient(x, y);
-    }
-
 };
 
 #endif

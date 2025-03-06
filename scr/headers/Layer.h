@@ -14,6 +14,7 @@ public:
 
     // std::shared_ptr<ActivationFunction> activationFunction_;
     ActivationFunc activationFunction_;
+    
     // Eigen::MatrixXd initialize_weights_xavier_normal() {
     //     double stddev = sqrt(2.0 / inputSize_);
     
