@@ -19,4 +19,6 @@ struct LayerParams {
     std::string activationType;
 };
 
+
+
 #endif

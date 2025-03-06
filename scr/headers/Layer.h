@@ -11,23 +11,25 @@ public:
     int outputSize_;
     Eigen::MatrixXd W_;
     Eigen::VectorXd b_;
-    std::shared_ptr<ActivationFunction> activationFunction_;
+
+    // std::shared_ptr<ActivationFunction> activationFunction_;
+    ActivationFunc activationFunction_;
+    // Eigen::MatrixXd initialize_weights_xavier_normal() {
+    //     double stddev = sqrt(2.0 / inputSize_);
     
-    Eigen::MatrixXd initialize_weights_xavier_normal() {
-        double stddev = sqrt(2.0 / inputSize_);
+    //     std::random_device rd;
+    //     std::mt19937 gen(rd());
+    //     std::normal_distribution<double> dis(0, stddev);
     
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::normal_distribution<double> dis(0, stddev);
+    //     Eigen::MatrixXd weights = Eigen::MatrixXd::NullaryExpr(outputSize_, inputSize_, [&]() { return dis(gen); });
     
-        Eigen::MatrixXd weights = Eigen::MatrixXd::NullaryExpr(outputSize_, inputSize_, [&]() { return dis(gen); });
-    
-        return weights;
-    }
+    //     return weights;
+    // }
 
 public:
     Layer() = default;
-    Layer(int inputSize, int outputSize, std::shared_ptr<ActivationFunction> func) : inputSize_(inputSize), outputSize_(outputSize),
+
+    Layer(int inputSize, int outputSize, ActivationFunc func) : inputSize_(inputSize), outputSize_(outputSize),
     W_(outputSize, inputSize), b_(outputSize), activationFunction_(func) {
 
         // W_ = initialize_weights_xavier_normal();
@@ -36,7 +38,7 @@ public:
         b_.setZero();
     }
 
-    Layer(Eigen::MatrixXd W, Eigen::VectorXd b, std::shared_ptr<ActivationFunction> func) : 
+    Layer(Eigen::MatrixXd W, Eigen::VectorXd b, ActivationFunc func) : 
     W_(W), b_(b), inputSize_(W.cols()), outputSize_(W.rows()), activationFunction_(func) {}
 
     // считает z, получая выходной вектор prev_x из предыдущего слоя
@@ -45,7 +47,7 @@ public:
     }
     // считает x по z применяя activationFunction_
     Eigen::VectorXd CalculateX(const Eigen::VectorXd& z) {
-        return activationFunction_->activate(z);
+        return activationFunction_.activation(z);
     }
 
     // пихаем в слой градиенты, чтобы обновить веса 
@@ -65,7 +67,7 @@ public:
 
     // считает sigma'(z)
     Eigen::VectorXd getDerActivationFromZ(const Eigen::VectorXd& z) const {
-        return activationFunction_->derivative(z); //а если возвращаемое значение не конст то не работает ?
+        return activationFunction_.derivative(z); //а если возвращаемое значение не конст то не работает ?
     }
 
     int GetInputSize() const {

@@ -5,7 +5,7 @@
 #include "DataLoader.h"
 #include "NetTypes.h"
 
-#include <iomanip> //это для вывода, надо убрать потом будет
+#include <iomanip> //это для вывода, надо убрать потом будет 
 
 class Net {
 public:
@@ -20,7 +20,7 @@ public:
             int in_size = layersParams[i].inputSize;
             int out_size = layersParams[i].outputSize;
             std::string activation_name = layersParams[i].activationType;
-            layers_.push_back(std::make_shared<Layer>(in_size, out_size, ActivationCreation::create(activation_name)));
+            layers_.push_back(std::make_shared<Layer>(in_size, out_size, ActivationCreation::create(activation_name))); // ВСЕГДА СИГМОДА СЕЙЧАС, надо в билдере добавить ifы для выбора
         }
     }
 
@@ -36,7 +36,7 @@ public:
         for (int l = 0; l < numbersOfLayers_; ++l) {
             config += std::to_string(layers_[l]->GetInputSize()) + " ";
             config += std::to_string(layers_[l]->GetOutputSize()) + " ";
-            config += layers_[l]->activationFunction_->getType() + "\n";
+            config += layers_[l]->activationFunction_.Type + "\n";
 
             std::string name_W = "/L" + std::to_string(l) + "W.txt"; 
             std::string name_b = "/L" + std::to_string(l) + "b.txt";
@@ -147,7 +147,7 @@ public:
 
                 print_progress(round((double)i/(numberOfBatch-1) * 100));
             }
-            SaveNet("../models data/temporary weights"); // пока после каждой эпохи сохраняются веса, но вообще надо сделать это опциональным аргументом, чтобы можно было выбрать сохранять или нет
+            // SaveNet("../models data/temporary weights"); // пока после каждой эпохи сохраняются веса, но вообще надо сделать это опциональным аргументом, чтобы можно было выбрать сохранять или нет
         }
         
         std::cout << "\nОбучение завершено. Точность на тренировочной выборке: " << accuracity(X, Y) * 100.0 << "%\n";

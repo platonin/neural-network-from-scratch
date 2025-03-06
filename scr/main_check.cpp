@@ -5,16 +5,11 @@
 
 int main() {
     std::string path_to_weigths = "../models data/temporary weights";
+    
     auto netConig = DataLoader::loadNetConfig(path_to_weigths);
     auto netLayers = DataLoader::loadLayers(path_to_weigths);
 
-    // for (int i = 0; i < netConig.size(); ++i) {
-    //     std::cout << netConig[i].inputSize << " " << netConig[i].outputSize << " " << netConig[i].activationType << "\n";
-    // }
-
     Net net(netConig, netLayers);
-
-
 
     std::string train_images_path = "../train data/MNIST numbers/t10k-images.idx3-ubyte";
     std::string train_labels_path = "../train data/MNIST numbers/t10k-labels.idx1-ubyte";
@@ -28,6 +23,7 @@ int main() {
     for (int i = 0; i < 30; ++i) {
         std::cout << test_labels_int[i] << " ";
     }
+    
     std::cout << "\n";
 
     std::cout << "Предсказано: \n";

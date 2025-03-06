@@ -28,7 +28,7 @@ int main() {
     // for (int i = 0; i < 30; ++i) std::cout << net.predict(X[i]) << " ";
     // std::cout << "\n";
     
-    net.train_SGD(X, Y, 3, 1, 100);
+    net.train_SGD(X, Y, 4, 1, 10);
 
     // std::cout << "Потом предсказано: \n";
     // for (int i = 0; i < 30; ++i) {
