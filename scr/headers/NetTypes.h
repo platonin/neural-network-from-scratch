@@ -16,7 +16,7 @@ struct layerGradData {
 struct LayerParams {
     int inputSize;
     int outputSize;
-    std::string activationType;
+    ActivationFunc activationType;
 };
 
 

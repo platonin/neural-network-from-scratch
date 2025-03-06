@@ -6,25 +6,30 @@
 #include "NetTypes.h"
 #include "ActivationFunction.h"
 
+
 #include <iomanip> //это для вывода, надо убрать потом будет 
+class NetBuilder;
 
 class Net {
-public:
-    // std::shared_ptr<DistanceFunction> distance_;
-    // std::shared_ptr<LossFunction> loss_;
+private:
     LossFunc loss_;
     int numbersOfLayers_;
     std::vector<std::shared_ptr<Layer>> layers_;
 
+
 public:
-    Net(std::vector<LayerParams> layersParams) : loss_(LossCreation::GetMSE()), numbersOfLayers_(layersParams.size()) {
-        for (int i = 0; i < numbersOfLayers_; ++i) {
-            int in_size = layersParams[i].inputSize;
-            int out_size = layersParams[i].outputSize;
-            std::string activation_name = layersParams[i].activationType;
-            layers_.push_back(std::make_shared<Layer>(in_size, out_size, ActivationCreation::create(activation_name)));
-        }
-    }
+    friend class NetBuilder;
+
+    Net() : loss_(), numbersOfLayers_(0), layers_() {}
+
+    // Net(std::vector<LayerParams> layersParams) : loss_(LossCreation::GetMSE()), numbersOfLayers_(layersParams.size()) {
+    //     for (int i = 0; i < numbersOfLayers_; ++i) {
+    //         int in_size = layersParams[i].inputSize;
+    //         int out_size = layersParams[i].outputSize;
+    //         ActivationFunc activation = layersParams[i].activationType;
+    //         layers_.push_back(std::make_shared<Layer>(in_size, out_size, activation));
+    //     }
+    // }
 
     Net(std::vector<LayerParams> layersParams, std::vector<std::shared_ptr<Layer>> layers) : 
     loss_(LossCreation::GetMSE()), 

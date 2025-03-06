@@ -198,7 +198,7 @@ namespace DataLoader {
             int outputSize;
             std::string activation;
             file >> inputSize >> outputSize >> activation;
-            config[i] = {inputSize, outputSize, activation};
+            config[i] = {inputSize, outputSize, ActivationCreation::create(activation)};
         }
         return config;
     }
@@ -210,8 +210,8 @@ namespace DataLoader {
         for (int l = 0; l < countLyers; ++l) {
             std::string pathW = pathToConfig + "/L" + std::to_string(l) + "W.txt";
             std::string pathB = pathToConfig + "/L" + std::to_string(l) + "b.txt";
-            std::string activation_name = params[l].activationType;
-            layers[l] = std::make_shared<Layer>(loadMatrix(pathW), loadVector(pathB), ActivationCreation::create(activation_name));
+            ActivationFunc activation = params[l].activationType;
+            layers[l] = std::make_shared<Layer>(loadMatrix(pathW), loadVector(pathB), activation);
         }
 
         // std::cout << layers.size() << "\n";

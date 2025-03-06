@@ -1,10 +1,20 @@
 #include "./headers/Net.h"
+#include "./headers/NetBuilder.h"
 #include "./headers/DataLoader.h"
 #include <iostream>
 #include <iomanip>
 
 int main() {
-    Net net({{784, 30, "Sigmoid"}, {30, 20, "Sigmoid"}, {20, 10, "Sigmoid"}});
+    // Net net({{784, 30, ActivationCreation::GetSigmod()}, {30, 20, ActivationCreation::GetSigmod()}, {20, 10, ActivationCreation::GetSigmod()}});
+
+    ActivationFunc sigmoid = ActivationCreation::GetSigmod();
+
+    NetBuilder builder(784); // задаем входной размер при создании
+    builder.setLoss(LossCreation::GetMSE()); // устанавливаем функцию ошибки MSE
+    builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, sigmoid}});
+
+    Net net = builder.createNet();
+
 
     std::string train_images_path = "../train data/MNIST numbers/train-images.idx3-ubyte";
     std::string train_labels_path = "../train data/MNIST numbers/train-labels.idx1-ubyte";
