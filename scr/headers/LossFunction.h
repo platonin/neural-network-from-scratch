@@ -67,6 +67,13 @@ public:
     static LossFunc GetMAE() {
         return {&MAE, &MAE_der, "MAE"};
     }
+
+    static LossFunc create(std::string type) {
+        if (type == "MSE") return GetMSE();
+        if (type == "MAE") return GetMAE();
+        else std::cerr << "Неизвестный тип активационной функции: " + type;
+        return {};
+    }
 };
 
 #endif

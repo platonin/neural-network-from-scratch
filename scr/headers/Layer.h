@@ -6,7 +6,7 @@
 #include <cmath>
 
 class Layer {
-public:
+private: // 
     int inputSize_;
     int outputSize_;
     Eigen::MatrixXd W_;
@@ -28,16 +28,18 @@ public:
     // }
 
 public:
+    // friend std::istream& operator>>(std::istream& is, const Net& net);
+
     Layer() = default;
 
-    Layer(int inputSize, int outputSize, ActivationFunc func) : inputSize_(inputSize), outputSize_(outputSize),
-    W_(outputSize, inputSize), b_(outputSize), activationFunction_(func) {
+    // Layer(int inputSize, int outputSize, ActivationFunc func) : inputSize_(inputSize), outputSize_(outputSize),
+    // W_(outputSize, inputSize), b_(outputSize), activationFunction_(func) {
 
-        // W_ = initialize_weights_xavier_normal();
-        W_.setRandom();
+    //     // W_ = initialize_weights_xavier_normal();
+    //     W_.setRandom();
 
-        b_.setZero();
-    }
+    //     b_.setZero();
+    // }
 
     Layer(Eigen::MatrixXd W, Eigen::VectorXd b, ActivationFunc func) : 
     W_(W), b_(b), inputSize_(W.cols()), outputSize_(W.rows()), activationFunction_(func) {}
@@ -76,6 +78,10 @@ public:
     }
     int GetOutputSize() const {
         return outputSize_;
+    }
+
+    std::string GetActivationType() const {
+        return activationFunction_.Type;
     }
 };
 

@@ -19,6 +19,9 @@ private:
 
 public:
     friend class NetBuilder;
+    friend std::ostream& operator<<(std::ostream& os, const Net& net);
+    friend std::istream& operator>>(std::istream& is, Net& net);
+    
 
     Net() : loss_(), numbersOfLayers_(0), layers_() {}
 
@@ -32,27 +35,41 @@ public:
     // }
 
     Net(std::vector<LayerParams> layersParams, std::vector<std::shared_ptr<Layer>> layers) : 
-    loss_(LossCreation::GetMSE()), 
+    loss_(LossCreation::GetMSE()),
     numbersOfLayers_(layersParams.size()), 
     layers_(layers) {}
 
     // сохранение конфигурации сети, всех матриц весов и сдвигов в txt файлы с названиями "L" + "<номер слоя>" + "<W или b>.txt" 
-    void SaveNet(std::string path) {
-        std::string config = std::to_string(numbersOfLayers_) + "\n";
-        for (int l = 0; l < numbersOfLayers_; ++l) {
-            config += std::to_string(layers_[l]->GetInputSize()) + " ";
-            config += std::to_string(layers_[l]->GetOutputSize()) + " ";
-            config += layers_[l]->activationFunction_.Type + "\n";
+    // void SaveNet(std::string path) {
+    //     std::string config = std::to_string(numbersOfLayers_) + "\n";
+    //     for (int l = 0; l < numbersOfLayers_; ++l) {
+    //         config += std::to_string(layers_[l]->GetInputSize()) + " ";
+    //         config += std::to_string(layers_[l]->GetOutputSize()) + " ";
+    //         config += layers_[l]->GetActivationType() + "\n";
 
-            std::string name_W = "/L" + std::to_string(l) + "W.txt"; 
-            std::string name_b = "/L" + std::to_string(l) + "b.txt";
-            DataLoader::saveMatrix(layers_[l]->GetW(), path + name_W);
-            DataLoader::saveMatrix(layers_[l]->GetB(), path + name_b);
-        }
-        std::string configFileName = path + "/config.txt";
-        std::ofstream fileConfig(configFileName);
-        fileConfig << config;
-        fileConfig.close();
+    //         std::string name_W = "/L" + std::to_string(l) + "W.txt"; 
+    //         std::string name_b = "/L" + std::to_string(l) + "b.txt";
+    //         DataLoader::saveMatrix(layers_[l]->GetW(), path + name_W);
+    //         DataLoader::saveMatrix(layers_[l]->GetB(), path + name_b);
+    //     }
+    //     std::string configFileName = path + "/config.txt";
+    //     std::ofstream fileConfig(configFileName);
+    //     fileConfig << config;
+    //     fileConfig.close();
+    // }
+
+    void SaveNet2(std::string path) {
+        std::string fileName = path + "/temporary_weights.txt";
+        std::ofstream file(fileName);
+        file << *this; //это правильно?
+        file.close();
+    }
+
+    void SaveNet2(std::string path, int num) {
+        std::string fileName = path + "/weights_" + std::to_string(num) + ".txt";
+        std::ofstream file(fileName);
+        file << *this; //это правильно?
+        file.close();
     }
 
 
@@ -234,5 +251,64 @@ public:
         std::cout .flush();
     }
 };
+
+
+std::ostream& operator<<(std::ostream& os, const Net& net) {
+    os << std::to_string(net.numbersOfLayers_) << " " << net.loss_.Type << "\n";
+    //наверное размеры слоев отдельно не нужны
+    // for (int l = 0; l < net.numbersOfLayers_; ++l) {
+    //     os << std::to_string(net.layers_[l]->GetInputSize()) + " ";
+    //     os << std::to_string(net.layers_[l]->GetOutputSize()) + " ";
+    //     os << net.layers_[l]->GetActivationType() + "\n";
+    // }
+
+    for (int l = 0; l < net.numbersOfLayers_; ++l) {
+        const Eigen::MatrixXd& W = net.layers_[l]->GetW();
+        os << W.rows() << " " << W.cols() << " " << net.layers_[l]->GetActivationType() << "\n" << W << "\n";
+
+        const Eigen::VectorXd& B = net.layers_[l]->GetB();
+        os << B.rows() << " " << B.cols() << "\n" << B << "\n";
+    }
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Net& net) {
+    int numberOfLayers;
+    std::string lossType;
+    is >> numberOfLayers >> lossType;
+    std::vector<std::shared_ptr<Layer>> layers(numberOfLayers);
+    // for (int l = 0; l < numberOfLayers; ++l) {
+    //     int inSize, outSize;
+    //     std::string activation;
+    //     is >> inSize >> outSize >> activation;
+    //     layers[l]->inputSize_ = inSize;
+    //     layers[l]->outputSize_ = outSize;
+    //     layers[l]->activationFunction_ = ActivationCreation::create(activation);
+    // }
+    
+    for (int l = 0; l < numberOfLayers; ++l) {
+        int inSize, outSize;
+        std::string activation;
+        is >> outSize >> inSize >> activation;
+
+        Eigen::MatrixXd W(outSize, inSize); // с размерами все норм?
+        for (int i = 0; i < outSize; ++i)
+            for (int j = 0; j < inSize; ++j)
+                is >> W(i, j);
+        
+        is >> outSize >> inSize;
+        Eigen::VectorXd b(outSize); // с размерами все норм?
+        for (int i = 0; i < outSize; ++i)
+            is >> b(i);
+
+        // тут по идее move (ну оно в конструкторе должно быть вроде)
+        layers[l] = std::make_shared<Layer>(W, b, ActivationCreation::create(activation));
+    }
+
+    net.numbersOfLayers_ = numberOfLayers;
+    net.loss_ = LossCreation::create(lossType);
+    net.layers_ = std::move(layers);
+    return is;
+}
 
 #endif

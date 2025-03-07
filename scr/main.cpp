@@ -46,7 +46,7 @@ int main() {
     // }
     // std::cout << "\n";
 
-    net.SaveNet("../models data/temporary weights");
+    net.SaveNet2("../models data");
 
     return 0;
 }

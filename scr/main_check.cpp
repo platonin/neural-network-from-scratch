@@ -4,12 +4,18 @@
 #include <iomanip>
 
 int main() {
-    std::string path_to_weigths = "../models data/temporary weights";
-    
-    auto netConig = DataLoader::loadNetConfig(path_to_weigths);
-    auto netLayers = DataLoader::loadLayers(path_to_weigths);
+    std::string path_to_weigths = "../models data/temporary_weights.txt";
 
-    Net net(netConig, netLayers);
+    std::ifstream file(path_to_weigths);
+
+    Net net;
+    file >> net;
+
+    
+    // auto netConig = DataLoader::loadNetConfig(path_to_weigths);
+    // auto netLayers = DataLoader::loadLayers(path_to_weigths);
+
+    // Net net(netConig, netLayers);
 
     std::string train_images_path = "../train data/MNIST numbers/t10k-images.idx3-ubyte";
     std::string train_labels_path = "../train data/MNIST numbers/t10k-labels.idx1-ubyte";
