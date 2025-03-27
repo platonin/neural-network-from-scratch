@@ -3,8 +3,6 @@
 
 #include "Net.h"
 
-// class Net;
-
 struct SetLayerParams {
     int layerSize;
     ActivationFunc activation;

@@ -1,7 +1,8 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-#include "DistanceFunction.h"
+// #include "DistanceFunction.h"
+#include "ActivationFunction.h"
 #include <random>
 #include <cmath>
 
@@ -12,7 +13,6 @@ private: //
     Eigen::MatrixXd W_;
     Eigen::VectorXd b_;
 
-    // std::shared_ptr<ActivationFunction> activationFunction_;
     ActivationFunc activationFunction_;
     
     // Eigen::MatrixXd initialize_weights_xavier_normal() {
@@ -28,7 +28,6 @@ private: //
     // }
 
 public:
-    // friend std::istream& operator>>(std::istream& is, const Net& net);
 
     Layer() = default;
 
@@ -84,13 +83,5 @@ public:
         return activationFunction_.Type;
     }
 };
-
-
-
-// struct LayerParams {
-//     int inputSize;
-//     int outputSize;
-//     std::string activationType;
-// };
 
 #endif
