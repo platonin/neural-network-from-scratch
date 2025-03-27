@@ -1,0 +1,10 @@
+.DS_Store
+.vscode
+scr/.DS_Store
+scr/main
+scr/main_check
+scr/.vscode
+models data/.DS_Store
+external/.DS_Store
+train_data/.DS_Store
+train_data/MNIST numbers/.DS_Store

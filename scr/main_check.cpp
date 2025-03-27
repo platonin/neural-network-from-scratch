@@ -1,32 +1,29 @@
-#include "Net.h"
-#include "DataLoader.h"
+#include "./headers/Net.h"
+#include "./headers/DataLoader.h"
 #include <iostream>
 #include <iomanip>
 
 int main() {
-    Net net({{784, 30, "Sigmoid"}, {30, 20, "Sigmoid"}, {20, 10, "Sigmoid"}});
+    std::string path_to_weigths = "../models data/temporary_weights.txt";
+    // std::string path_to_weigths = "../models data/weights_96_accurency.txt"; // файл с конфигурацией на 96% точности
+    std::ifstream file(path_to_weigths);
 
-    net.layers_[0]->W_ = DataLoader::loadMatrix("L0W.txt");
-    net.layers_[0]->b_ = DataLoader::loadVector("L0b.txt");
-    net.layers_[1]->W_ = DataLoader::loadMatrix("L1W.txt");
-    net.layers_[1]->b_ = DataLoader::loadVector("L1b.txt");
-    net.layers_[2]->W_ = DataLoader::loadMatrix("L2W.txt");
-    net.layers_[2]->b_ = DataLoader::loadVector("L2b.txt");
+    // загрузка весов нейросети из файла
+    Net net;
+    file >> net;
 
-    string train_images_path = "../something/archive-4/t10k-images-idx3-ubyte/t10k-images-idx3-ubyte";
-    string train_labels_path = "../something/archive-4/t10k-labels-idx1-ubyte/t10k-labels-idx1-ubyte";
-    // string train_images_path = "../something/archive-4/train-images-idx3-ubyte/train-images-idx3-ubyte";
-    // string train_labels_path = "../something/archive-4/train-labels-idx1-ubyte/train-labels-idx1-ubyte";
-
+    std::string train_images_path = "../train data/MNIST numbers/t10k-images.idx3-ubyte";
+    std::string train_labels_path = "../train data/MNIST numbers/t10k-labels.idx1-ubyte";
     auto test_images_matrixs = DataLoader::loadMNISTImages(train_images_path); //вектор матриц
     auto test_labels_int = DataLoader::loadMNISTIlabels(train_labels_path); //вектор интов
 
     auto test_images = DataLoader::imagesTransformToVector(test_images_matrixs); // вектор VectorXd длины 784
 
-    std::cout << "Должно быть: \n";
+    std::cout << "Должно быть (первые 30 чисел из выборки): \n";
     for (int i = 0; i < 30; ++i) {
         std::cout << test_labels_int[i] << " ";
     }
+    
     std::cout << "\n";
 
     std::cout << "Предсказано: \n";

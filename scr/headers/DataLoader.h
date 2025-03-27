@@ -7,6 +7,12 @@
 // #include <opencv2/opencv.hpp>
 #include <Eigen/Dense>
 #include <iomanip>
+#include <stdexcept>
+#include "NetTypes.h"
+#include "Layer.h"
+
+
+class Net;
 
 namespace DataLoader {
     using namespace std;
@@ -112,69 +118,6 @@ namespace DataLoader {
     //     imshow("MNIST Image", img8bit);
     //     waitKey(0); // Ожидание нажатия клавиши
     // }
-
-    //--------------------------------------------------------
-
-    // наверное разумно вынести в какой-нибудь namespace DataSaver
-    // сохранение матрицы просто в текстовом формате (в строке числа разделены через пробел, сами строки через \n)
-    void saveMatrix(const Eigen::MatrixXd& matrix, const std::string& filename) {
-        std::ofstream file(filename);
-        if (file.is_open()) {
-            file << matrix.rows() << " " << matrix.cols() << "\n";
-            file << matrix << "\n";
-            file.close();
-        } else {
-            std::cerr << "Ошибка: не удалось открыть файл " << filename << " для записи.\n";
-        }
-    }
-    
-    void saveVector(const Eigen::VectorXd& vector, const std::string& filename) {
-        std::ofstream file(filename);
-        if (file.is_open()) {
-            file << vector.size() << "\n";
-            file << vector.transpose() << "\n";
-            file.close();
-        } else {
-            std::cerr << "Ошибка: не удалось открыть файл " << filename << " для записи.\n";
-        }
-    }
-
-    Eigen::MatrixXd loadMatrix(const std::string& filename) {
-        std::ifstream file(filename);
-        if (!file.is_open()) {
-            std::cerr << "Ошибка: не удалось открыть файл " << filename << "\n";
-            return Eigen::MatrixXd();
-        }
-        
-        int rows, cols;
-        file >> rows >> cols; 
-    
-        Eigen::MatrixXd matrix(rows, cols);
-        for (int i = 0; i < rows; ++i)
-            for (int j = 0; j < cols; ++j)
-                file >> matrix(i, j);
-    
-        file.close();
-        return matrix;
-    }
-    
-    Eigen::VectorXd loadVector(const std::string& filename) {
-        std::ifstream file(filename);
-        if (!file.is_open()) {
-            std::cerr << "Ошибка: не удалось открыть файл " << filename << "\n";
-            return Eigen::VectorXd();
-        }
-    
-        int size;
-        file >> size;
-    
-        Eigen::VectorXd vector(size);
-        for (int i = 0; i < size; ++i)
-            file >> vector(i);
-    
-        file.close();
-        return vector;
-    }
 };
 
 #endif

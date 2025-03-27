@@ -1,10 +1,22 @@
 #include "./headers/Net.h"
+#include "./headers/NetBuilder.h"
 #include "./headers/DataLoader.h"
 #include <iostream>
 #include <iomanip>
 
 int main() {
-    Net net({{784, 30, "Sigmoid"}, {30, 20, "Sigmoid"}, {20, 10, "Sigmoid"}});
+    ActivationFunc sigmoid = ActivationCreation::GetSigmod();
+    ActivationFunc ReLU = ActivationCreation::GetReLU();
+    ActivationFunc softmax = ActivationCreation::GetSoftmax();
+
+    NetBuilder builder(784); // задаем входной размер при создании
+
+    builder.setLoss(LossCreation::GetCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
+    builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, softmax}});
+
+
+    Net net = builder.createNet();
+
 
     std::string train_images_path = "../train data/MNIST numbers/train-images.idx3-ubyte";
     std::string train_labels_path = "../train data/MNIST numbers/train-labels.idx1-ubyte";
@@ -20,9 +32,9 @@ int main() {
     std::vector<Eigen::VectorXd> X(train_images.begin(), train_images.begin() + train_size);
     std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
     
-    net.train_SGD(X, Y, 3, 1, 100);
-    
-    net.SaveWeights("../models data/temporary weights");
+    net.train_SGD(X, Y, 4, 1, 10);
+
+    net.SaveNet2("../models data");
 
     return 0;
 }
