@@ -5,6 +5,7 @@
 
 int main() {
     std::string path_to_weigths = "../models data/temporary_weights.txt";
+    // std::string path_to_weigths = "../models data/weights_96_accurency.txt";
 
     std::ifstream file(path_to_weigths);
 

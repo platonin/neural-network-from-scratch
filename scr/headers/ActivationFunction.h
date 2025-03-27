@@ -187,15 +187,18 @@ public:
         return ActivationFunc{&Sigmoid, &Sigmoid_der, "Sigmoid"};
     }
 
+    static ActivationFunc GetSoftmax() {
+        return ActivationFunc{&Softmax, &Softmax_der, "Softmax"};
+    }
+
     static ActivationFunc create(std::string type) {
         if (type == "ReLU") return GetReLU();
         if (type == "Sigmoid") return GetSigmod();
+        if (type == "Softmax") return GetSoftmax();
         else std::cerr << "Неизвестный тип активационной функции: " + type;
         return {};
     }
 };
-
-
 
 
 #endif
