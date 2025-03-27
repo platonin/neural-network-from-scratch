@@ -11,7 +11,7 @@ int main() {
 
     NetBuilder builder(784); // задаем входной размер при создании
     builder.setLoss(LossCreation::GetMSE()); // устанавливаем функцию ошибки MSE
-    builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, sigmoid}});
+    builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, sigmoid}, {10, sigmoid}});
 
     Net net = builder.createNet();
 

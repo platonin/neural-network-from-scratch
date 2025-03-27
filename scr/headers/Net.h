@@ -108,15 +108,17 @@ public:
             // Eigen::VectorXd grad_L_x_i = grads_L_x[i];
             int L = numbersOfLayers_-1;
 
-            layers_back_data[i][L].grad_b = layers_[L]->getDerActivationFromZ(layers_forward_data[i][L].z).cwiseProduct(grads_L_x[i]);
+            // layers_back_data[i][L].grad_b = layers_[L]->getDerActivationFromZ(layers_forward_data[i][L].z).cwiseProduct(grads_L_x[i]);
+            layers_back_data[i][L].grad_b = layers_[L]->getDerActivationFromZ(layers_forward_data[i][L].z) * grads_L_x[i]; // стало matrix[KxK] * matrix[Kx1] = matrix[Kx1]
             layers_back_data[i][L].grad_W = layers_back_data[i][L].grad_b * layers_forward_data[i][L-1].x.transpose();
             // std::cout << "ok ok\n"; 
 
             for (int l = L-1; l > 0; --l) {
-                layers_back_data[i][l].grad_b = layers_[l]->getDerActivationFromZ(layers_forward_data[i][l].z).cwiseProduct(layers_[l+1]->GetW().transpose() * layers_back_data[i][l+1].grad_b);
+                // layers_back_data[i][l].grad_b = layers_[l]->getDerActivationFromZ(layers_forward_data[i][l].z).cwiseProduct(layers_[l+1]->GetW().transpose() * layers_back_data[i][l+1].grad_b);
+                layers_back_data[i][l].grad_b = layers_[l]->getDerActivationFromZ(layers_forward_data[i][l].z) * layers_[l+1]->GetW().transpose() * layers_back_data[i][l+1].grad_b;
                 layers_back_data[i][l].grad_W = layers_back_data[i][l].grad_b * layers_forward_data[i][l-1].x.transpose();
             }
-            layers_back_data[i][0].grad_b = layers_[0]->getDerActivationFromZ(layers_forward_data[i][0].z).cwiseProduct(layers_[1]->GetW().transpose() * layers_back_data[i][1].grad_b);
+            layers_back_data[i][0].grad_b = layers_[0]->getDerActivationFromZ(layers_forward_data[i][0].z) * layers_[1]->GetW().transpose() * layers_back_data[i][1].grad_b;
             layers_back_data[i][0].grad_W = layers_back_data[i][0].grad_b * X[i].transpose();
         }
         return layers_back_data;
@@ -156,7 +158,7 @@ public:
 
                 std::vector<Eigen::VectorXd> grads_L_x(batchSize);
                 for (int num_batch = 0; num_batch < batchSize; ++num_batch) {
-                    grads_L_x[num_batch] = loss_.lossDerivative(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch]);
+                    grads_L_x[num_batch] = loss_.lossDerivative(layers_forward_data_batch_i[num_batch][numbersOfLayers_-1].x, batch_y_i[num_batch]);
                 }
 
                 // вообще это для вывода ошибки после каждой эпохи, но оно как-то криво считается, потом поправлю

@@ -69,7 +69,7 @@ public:
     }
 
     // считает sigma'(z)
-    Eigen::VectorXd getDerActivationFromZ(const Eigen::VectorXd& z) const {
+    Eigen::MatrixXd getDerActivationFromZ(const Eigen::VectorXd& z) const {
         return activationFunction_.derivative(z); //а если возвращаемое значение не конст то не работает ?
     }
 

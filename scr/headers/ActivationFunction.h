@@ -117,7 +117,7 @@
 
 struct ActivationFunc {
     std::function<Eigen::VectorXd(const Eigen::VectorXd&)> activation;
-    std::function<Eigen::VectorXd(const Eigen::VectorXd&)> derivative;
+    std::function<Eigen::MatrixXd(const Eigen::VectorXd&)> derivative;
     std::string Type;
 };
 
@@ -131,12 +131,12 @@ private:
         return result;
     }
 
-    static Eigen::VectorXd ReLU_der(const Eigen::VectorXd& vec) {
+    static Eigen::MatrixXd ReLU_der(const Eigen::VectorXd& vec) {
         Eigen::VectorXd result(vec.size());
         for (int i = 0; i < vec.size(); ++i) {
             result(i) = (vec(i) > 0) ? 1 : 0;
         }
-        return result;
+        return result.asDiagonal();
     }
 
     static Eigen::VectorXd Sigmoid(const Eigen::VectorXd& vec) {
@@ -148,7 +148,7 @@ private:
         return (1.0 / (1.0 + (-vec.array()).exp())).matrix();
     }
 
-    static Eigen::VectorXd Sigmoid_der(const Eigen::VectorXd& vec) {
+    static Eigen::MatrixXd Sigmoid_der(const Eigen::VectorXd& vec) {
         // Eigen::VectorXd result(vec.size());
         // for (int i = 0; i < vec.size(); ++i) {
         //     double sig = 1.0 / (1.0 + std::exp(- vec(i)));
@@ -156,7 +156,19 @@ private:
         // }
         // return result;
         Eigen::VectorXd sig = Sigmoid(vec);
-        return (sig.array() * (1 - sig.array())).matrix();
+        return (sig.array() * (1 - sig.array())).matrix().asDiagonal();
+    }
+
+    static Eigen::VectorXd Softmax(const Eigen::VectorXd& vec) {
+        Eigen::VectorXd exp_values = vec.array().exp();
+        double sum_exp = exp_values.sum();
+        return exp_values / sum_exp;
+    }
+
+    static Eigen::MatrixXd Softmax_der(const Eigen::VectorXd& vec) {
+        Eigen::VectorXd softmax = Softmax(vec);
+        Eigen::MatrixXd diag = softmax.asDiagonal();
+        return diag - softmax * softmax.transpose();
     }
 
     
