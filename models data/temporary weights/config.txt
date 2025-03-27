@@ -1,0 +1,4 @@
+3
+784 30 Sigmoid
+30 20 Sigmoid
+20 10 Sigmoid

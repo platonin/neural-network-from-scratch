@@ -1,0 +1,4 @@
+3
+784 256 Sigmoid
+256 128 Sigmoid
+128 10 Sigmoid
