@@ -13,9 +13,11 @@ struct layerGradData {
     Eigen::VectorXd grad_b;
 };
 
-struct layerVelocityData {
+struct layerOptimizerData {
     Eigen::MatrixXd velocity_W;
     Eigen::VectorXd velocity_b;
+    Eigen::MatrixXd G_W;
+    Eigen::VectorXd G_b;
 };
 
 struct LayerParams {

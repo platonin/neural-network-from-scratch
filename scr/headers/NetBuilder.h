@@ -17,11 +17,12 @@ private:
     int numbersOfLayers_;
     std::vector<bool> netIsReadyToCreate_;
     std::vector<std::shared_ptr<Layer>> layers_;
+    Optimizer optimizer_;
 
     
 
 public:
-    NetBuilder(int inputSize) : inputSize_(inputSize), netIsReadyToCreate_(2, false) {}
+    NetBuilder(int inputSize) : inputSize_(inputSize), netIsReadyToCreate_(3, false) {}
 
     void setLoss(LossFunc func) {
         loss_ = func;
@@ -41,6 +42,11 @@ public:
         netIsReadyToCreate_[1] = true;
     }
 
+    void setOptimizer(Optimizer optimizer) {
+        optimizer_ = optimizer;
+        netIsReadyToCreate_[2] = true;
+    }
+
     bool isReady() {
         bool flag = true;
         for (int i = 0; i < netIsReadyToCreate_.size(); ++i) {
@@ -56,6 +62,7 @@ public:
             net.loss_ = loss_;
             net.numbersOfLayers_ = numbersOfLayers_;
             net.layers_ = layers_; 
+            net.optimizer_ = optimizer_;
             return net;
 
         } else {

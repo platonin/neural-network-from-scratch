@@ -34,8 +34,8 @@ public:
     Layer(int inputSize, int outputSize, ActivationFunc func) : inputSize_(inputSize), outputSize_(outputSize),
     W_(outputSize, inputSize), b_(outputSize), activationFunction_(func) {
 
-        W_ = initialize_weights_xavier_normal();
-        // W_.setRandom();
+        // W_ = initialize_weights_xavier_normal();
+        W_.setRandom();
 
         b_.setZero();
     }
