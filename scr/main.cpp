@@ -13,9 +13,10 @@ int main() {
     NetBuilder builder(784); // задаем входной размер при создании
 
     builder.setLoss(LossCreation::GetCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
-    builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
+    builder.setLayers({{128, sigmoid}, {64, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
     // builder.setOptimizer(OptimizerCreation::GetSGD(1)); // устанавливаем оптимизатор SGD
-    builder.setOptimizer(OptimizerCreation::GetMomentum(1, 0.9)); // устанавливаем оптимизатор SGD + Momentum
+    // builder.setOptimizer(OptimizerCreation::GetRMSProp(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
+    builder.setOptimizer(OptimizerCreation::GetAdam(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
 
     Net net = builder.createNet();
 
