@@ -8,11 +8,13 @@ int main() {
     ActivationFunc sigmoid = ActivationCreation::GetSigmod();
     ActivationFunc ReLU = ActivationCreation::GetReLU();
     ActivationFunc softmax = ActivationCreation::GetSoftmax();
+    ActivationFunc leakyReLU = ActivationCreation::GetLeakyReLU();
 
     NetBuilder builder(784); // задаем входной размер при создании
 
     builder.setLoss(LossCreation::GetCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
-    builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, softmax}});
+    builder.setLayers({{30, leakyReLU}, {20, leakyReLU}, {10, softmax}}); // добавляем слои с функциями активации
+    // builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
 
 
     Net net = builder.createNet();
@@ -33,7 +35,10 @@ int main() {
     std::vector<Eigen::VectorXd> X(train_images.begin(), train_images.begin() + train_size);
     std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
     
-    net.train_SGD(X, Y, 4, 1, 10);
+    // net.train_SGD(X, Y, 4, 1, 10);
+    // net.train_SGD(X, Y, 4, 0.1, 10);
+    // net.train_SGD_Momentum(X, Y, 4, 1, 0.9, 100);
+    net.train_SGD_Momentum(X, Y, 4, 1, 0.9, 100);
 
     // сохранение весов нейросети в файл temporary_weights.txt в переданной папке
     net.SaveNet2("../models data");

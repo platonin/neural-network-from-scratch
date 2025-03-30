@@ -30,6 +30,24 @@ private:
         return result.asDiagonal();
     }
 
+    static Eigen::VectorXd LeakyReLU(const Eigen::VectorXd& vec) {
+        double alpha = 0.01;
+        Eigen::VectorXd result(vec.size());
+        for (int i = 0; i < vec.size(); ++i) {
+            result(i) = (vec(i) > 0) ? vec(i) : alpha * vec(i);
+        }
+        return result;
+    }
+    
+    static Eigen::MatrixXd LeakyReLU_der(const Eigen::VectorXd& vec) {
+        double alpha = 0.01;
+        Eigen::VectorXd result(vec.size());
+        for (int i = 0; i < vec.size(); ++i) {
+            result(i) = (vec(i) > 0) ? 1 : alpha;
+        }
+        return result.asDiagonal();
+    }
+
     static Eigen::VectorXd Sigmoid(const Eigen::VectorXd& vec) {
         return (1.0 / (1.0 + (-vec.array()).exp())).matrix();
     }
@@ -66,10 +84,15 @@ public:
         return ActivationFunc{&Softmax, &Softmax_der, "Softmax"};
     }
 
+    static ActivationFunc GetLeakyReLU() {
+        return ActivationFunc{&LeakyReLU, &LeakyReLU_der, "LeakyReLU"};
+    }
+
     static ActivationFunc create(std::string type) {
         if (type == "ReLU") return GetReLU();
         if (type == "Sigmoid") return GetSigmod();
         if (type == "Softmax") return GetSoftmax();
+        if (type == "LeakyReLU") return GetLeakyReLU();
         else std::cerr << "Неизвестный тип активационной функции: " + type;
         return {};
     }

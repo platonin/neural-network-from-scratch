@@ -15,17 +15,17 @@ private: //
 
     ActivationFunc activationFunction_;
     
-    // Eigen::MatrixXd initialize_weights_xavier_normal() {
-    //     double stddev = sqrt(2.0 / inputSize_);
+    Eigen::MatrixXd initialize_weights_xavier_normal() {
+        double stddev = sqrt(2.0 / inputSize_);
     
-    //     std::random_device rd;
-    //     std::mt19937 gen(rd());
-    //     std::normal_distribution<double> dis(0, stddev);
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::normal_distribution<double> dis(0, stddev);
     
-    //     Eigen::MatrixXd weights = Eigen::MatrixXd::NullaryExpr(outputSize_, inputSize_, [&]() { return dis(gen); });
+        Eigen::MatrixXd weights = Eigen::MatrixXd::NullaryExpr(outputSize_, inputSize_, [&]() { return dis(gen); });
     
-    //     return weights;
-    // }
+        return weights;
+    }
 
 public:
 
@@ -34,8 +34,8 @@ public:
     Layer(int inputSize, int outputSize, ActivationFunc func) : inputSize_(inputSize), outputSize_(outputSize),
     W_(outputSize, inputSize), b_(outputSize), activationFunction_(func) {
 
-        // W_ = initialize_weights_xavier_normal();
-        W_.setRandom();
+        W_ = initialize_weights_xavier_normal();
+        // W_.setRandom();
 
         b_.setZero();
     }
@@ -53,11 +53,11 @@ public:
     }
 
     // пихаем в слой градиенты, чтобы обновить веса 
-    void UpdateW(const Eigen::MatrixXd& gradW, double learningRate) {
-        W_ -= learningRate * gradW;
+    void UpdateW(const Eigen::MatrixXd& gradW) {
+        W_ -= gradW;
     }
-    void UpdateB(const Eigen::MatrixXd& gradB, double learningRate) {
-        b_ -= learningRate * gradB;
+    void UpdateB(const Eigen::MatrixXd& gradB) {
+        b_ -= gradB;
     }
 
     const Eigen::MatrixXd& GetW() {

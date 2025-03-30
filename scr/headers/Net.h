@@ -111,8 +111,29 @@ public:
 
         for (int l = 0; l < numbersOfLayers_; ++l) {
             // std::cout << "размер слоя: " << layers_[l]->GetOutputSize() << " размер градиента: " << joint_grad[l].grad_b.size();
-            layers_[l]->UpdateB(joint_grad[l].grad_b, learningRate);
-            layers_[l]->UpdateW(joint_grad[l].grad_W, learningRate);
+            layers_[l]->UpdateB(learningRate * joint_grad[l].grad_b);
+            layers_[l]->UpdateW(learningRate * joint_grad[l].grad_W);
+        }
+    }
+
+    void update_weights_momentum(std::vector<std::vector<layerGradData>>& gradients_for_batch, int learningRate, double beta, std::vector<layerVelocityData>& velocity) {
+        int batchSize = gradients_for_batch.size();
+        std::vector<layerGradData> joint_grad(numbersOfLayers_);
+
+        for (int l = 0; l < numbersOfLayers_; ++l) {
+            joint_grad[l].grad_b = Eigen::VectorXd::Zero(layers_[l]->GetOutputSize());
+            joint_grad[l].grad_W = Eigen::MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
+            for (int i = 0; i < batchSize; ++i) {
+                joint_grad[l].grad_b += 1.0/batchSize * gradients_for_batch[i][l].grad_b;
+                joint_grad[l].grad_W += 1.0/batchSize * gradients_for_batch[i][l].grad_W;
+            }
+        }
+
+        for (int l = 0; l < numbersOfLayers_; ++l) {
+            velocity[l].velocity_b = beta * velocity[l].velocity_b + learningRate * joint_grad[l].grad_b;
+            velocity[l].velocity_W = beta * velocity[l].velocity_W + learningRate * joint_grad[l].grad_W;
+            layers_[l]->UpdateB(velocity[l].velocity_b);
+            layers_[l]->UpdateW(velocity[l].velocity_W);
         }
     }
 
@@ -144,6 +165,49 @@ public:
 
                 print_progress(round((double)i/(numberOfBatch-1) * 100));
             }
+            // SaveNet("../models data/temporary weights"); // пока после каждой эпохи сохраняются веса, но вообще надо сделать это опциональным аргументом, чтобы можно было выбрать сохранять или нет
+        }
+        
+        std::cout << "\nОбучение завершено. Точность на тренировочной выборке: " << accuracity(X, Y) * 100.0 << "%\n";
+    }
+
+    void train_SGD_Momentum(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::VectorXd>& Y, int epochs, double learningRate, double beta, int batchSize) {
+        int numberOfBatch = X.size()/batchSize; // надо сделать, чтобы если нацело не делится, то захватывался последний неполноценный батч
+        std::cout << "Количество батчей: " << numberOfBatch << "\n";
+        for (int numberEpoch = 1; numberEpoch <= epochs; ++numberEpoch) {
+            std::cout << "\nЭпоха номер: " << numberEpoch << "\n";
+            double metric = 0;
+
+            // инициализация velocity нулевыми значениями для матриц весов и сдвигов каждого слоя
+            std::vector<layerVelocityData> velocity(numbersOfLayers_);
+            for (int l = 0; l < numbersOfLayers_; ++l) {
+                velocity[l].velocity_W = Eigen::MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
+                velocity[l].velocity_b = Eigen::VectorXd::Zero(layers_[l]->GetOutputSize());
+            }
+
+            for (int i = 0; i < numberOfBatch; ++i) {
+                std::vector<Eigen::VectorXd> batch_x_i(X.begin() + batchSize*i, X.begin() + batchSize*(i+1)); // вообще надо избавиться от копирования
+                std::vector<Eigen::VectorXd> batch_y_i(Y.begin() + batchSize*i, Y.begin() + batchSize*(i+1)); // вообще надо избавиться от копирования
+
+                std::vector<std::vector<forwardData>> layers_forward_data_batch_i = forward_propagation(batch_x_i); // в [i][j] хранятся параметры для i-ого элемента в батче и (j+1)-ого слоя
+
+                std::vector<Eigen::VectorXd> grads_L_x(batchSize);
+                for (int num_batch = 0; num_batch < batchSize; ++num_batch) {
+                    grads_L_x[num_batch] = loss_.lossDerivative(layers_forward_data_batch_i[num_batch][numbersOfLayers_-1].x, batch_y_i[num_batch]);
+                }
+
+                // вообще это для вывода ошибки после каждой эпохи, но оно как-то криво считается, потом поправлю
+                // for (int num_batch = 0; num_batch < batchSize; ++num_batch) {
+                //     metric += (1.0/X.size()) * loss_.lossFunction(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch]);
+                // }
+
+                std::vector<std::vector<layerGradData>> gradients_for_batch = back_propagation(batch_x_i, grads_L_x, layers_forward_data_batch_i);
+
+                update_weights_momentum(gradients_for_batch, learningRate, beta, velocity);
+
+                print_progress(round((double)i/(numberOfBatch-1) * 100));
+            }
+            std::cout << "\nТочность: " << accuracity(X, Y) * 100.0 << "%\n";
             // SaveNet("../models data/temporary weights"); // пока после каждой эпохи сохраняются веса, но вообще надо сделать это опциональным аргументом, чтобы можно было выбрать сохранять или нет
         }
         

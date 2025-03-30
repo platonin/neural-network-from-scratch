@@ -13,6 +13,11 @@ struct layerGradData {
     Eigen::VectorXd grad_b;
 };
 
+struct layerVelocityData {
+    Eigen::MatrixXd velocity_W;
+    Eigen::VectorXd velocity_b;
+};
+
 struct LayerParams {
     int inputSize;
     int outputSize;
