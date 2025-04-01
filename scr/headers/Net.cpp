@@ -4,35 +4,35 @@ namespace NeuralNetwork {
 
 Net::Net() : loss_(), numbersOfLayers_(0), layers_(), optimizer_(OptimizerCreation::GetSGD(1)) {}
 
-void Net::SaveNet2(std::string path) {
-    std::string fileName = path + "/temporary_weights.txt";
-    std::ofstream file(fileName);
+void Net::SaveNet(string path) {
+    string fileName = path + "/temporary_weights.txt";
+    ofstream file(fileName);
     file << *this; //это правильно?
     file.close();
 }
 
-void Net::SaveNet2(std::string path, int num) {
-    std::string fileName = path + "/weights_" + std::to_string(num) + ".txt";
-    std::ofstream file(fileName);
+void Net::SaveNet(string path, int num) {
+    string fileName = path + "/weights_" + to_string(num) + ".txt";
+    ofstream file(fileName);
     file << *this; //это правильно?
     file.close();
 }
 
-void Net::setLayers(std::vector<std::shared_ptr<Layer>>& layers) {
+void Net::setLayers(vector<shared_ptr<Layer>>& layers) {
     if (layers.size() != numbersOfLayers_) {
-        std::cout << "Некорректные данные слоев.\n";
+        cout << "Некорректные данные слоев.\n";
         return;
     }
 
     layers_ = std::move(layers); // или тут не надо move ?
 }
 
-std::vector<std::vector<forwardData>> Net::forward_propagation(std::vector<Eigen::VectorXd>& X) {
+vector<vector<forwardData>> Net::forward_propagation(vector<VectorXd>& X) {
     int batchSize = X.size();
-    std::vector<std::vector<forwardData>> layers_data(batchSize, std::vector<forwardData>(numbersOfLayers_));
+    vector<vector<forwardData>> layers_data(batchSize, vector<forwardData>(numbersOfLayers_));
     for (int i = 0; i < batchSize; ++i) {
-        Eigen::VectorXd x_i_l = X[i];
-        Eigen::VectorXd z_i_l;
+        VectorXd x_i_l = X[i];
+        VectorXd z_i_l;
 
         // l – номер слоя
         for (int l = 0; l < numbersOfLayers_; ++l) {
@@ -46,17 +46,17 @@ std::vector<std::vector<forwardData>> Net::forward_propagation(std::vector<Eigen
     return layers_data;
 }
 
-std::vector<std::vector<layerGradData>> Net::back_propagation(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::VectorXd>& grads_L_x, std::vector<std::vector<forwardData>>& layers_forward_data) {
+vector<vector<layerGradData>> Net::back_propagation(vector<VectorXd>& X, vector<VectorXd>& grads_L_x, vector<vector<forwardData>>& layers_forward_data) {
     int batchSize = grads_L_x.size();
-    std::vector<std::vector<layerGradData>> layers_back_data(batchSize, std::vector<layerGradData>(numbersOfLayers_));
+    vector<vector<layerGradData>> layers_back_data(batchSize, vector<layerGradData>(numbersOfLayers_));
     for (int i = 0; i < batchSize; ++i) {
-        // Eigen::VectorXd grad_L_x_i = grads_L_x[i];
+        // VectorXd grad_L_x_i = grads_L_x[i];
         int L = numbersOfLayers_-1;
 
         // layers_back_data[i][L].grad_b = layers_[L]->CalculateActivationDer(layers_forward_data[i][L].z).cwiseProduct(grads_L_x[i]);
         layers_back_data[i][L].grad_b = layers_[L]->CalculateActivationDer(layers_forward_data[i][L].z) * grads_L_x[i]; // стало matrix[KxK] * matrix[Kx1] = matrix[Kx1]
         layers_back_data[i][L].grad_W = layers_back_data[i][L].grad_b * layers_forward_data[i][L-1].x.transpose();
-        // std::cout << "ok ok\n"; 
+        // cout << "ok ok\n"; 
 
         for (int l = L-1; l > 0; --l) {
             // layers_back_data[i][l].grad_b = layers_[l]->CalculateActivationDer(layers_forward_data[i][l].z).cwiseProduct(layers_[l+1]->GetW().transpose() * layers_back_data[i][l+1].grad_b);
@@ -69,13 +69,13 @@ std::vector<std::vector<layerGradData>> Net::back_propagation(std::vector<Eigen:
     return layers_back_data;
 }
 
-void Net::update_weights(std::vector<std::vector<layerGradData>>& gradients_for_batch, std::vector<layerOptimizerData>& optimizerData) {
+void Net::update_weights(vector<vector<layerGradData>>& gradients_for_batch, vector<layerOptimizerData>& optimizerData) {
     int batchSize = gradients_for_batch.size();
-    std::vector<layerGradData> joint_grad(numbersOfLayers_);
+    vector<layerGradData> joint_grad(numbersOfLayers_);
 
     for (int l = 0; l < numbersOfLayers_; ++l) {
-        joint_grad[l].grad_b = Eigen::VectorXd::Zero(layers_[l]->GetOutputSize());
-        joint_grad[l].grad_W = Eigen::MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
+        joint_grad[l].grad_b = VectorXd::Zero(layers_[l]->GetOutputSize());
+        joint_grad[l].grad_W = MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
         for (int i = 0; i < batchSize; ++i) {
             joint_grad[l].grad_b += 1.0/batchSize * gradients_for_batch[i][l].grad_b;
             joint_grad[l].grad_W += 1.0/batchSize * gradients_for_batch[i][l].grad_W;
@@ -87,29 +87,29 @@ void Net::update_weights(std::vector<std::vector<layerGradData>>& gradients_for_
     }
 }
 
-void Net::train(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::VectorXd>& Y, int epochs, int batchSize) {
+void Net::train(vector<VectorXd>& X, vector<VectorXd>& Y, int epochs, int batchSize) {
     int numberOfBatch = X.size()/batchSize; // надо сделать, чтобы если нацело не делится, то захватывался последний неполноценный батч
-    std::cout << "Количество батчей: " << numberOfBatch << "\n";
+    cout << "Количество батчей: " << numberOfBatch << "\n";
     for (int numberEpoch = 1; numberEpoch <= epochs; ++numberEpoch) {
-        std::cout << "\nЭпоха номер: " << numberEpoch << "\n";
+        cout << "\nЭпоха номер: " << numberEpoch << "\n";
         double metric = 0;
 
         // инициализация optimizerData нулевыми значениями для матриц весов и сдвигов каждого слоя
-        std::vector<layerOptimizerData> optimizerData(numbersOfLayers_);
+        vector<layerOptimizerData> optimizerData(numbersOfLayers_);
         for (int l = 0; l < numbersOfLayers_; ++l) {
-            optimizerData[l].velocity_W = Eigen::MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
-            optimizerData[l].velocity_b = Eigen::VectorXd::Zero(layers_[l]->GetOutputSize());
-            optimizerData[l].G_W = Eigen::MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
-            optimizerData[l].G_b = Eigen::VectorXd::Zero(layers_[l]->GetOutputSize());
+            optimizerData[l].velocity_W = MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
+            optimizerData[l].velocity_b = VectorXd::Zero(layers_[l]->GetOutputSize());
+            optimizerData[l].G_W = MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
+            optimizerData[l].G_b = VectorXd::Zero(layers_[l]->GetOutputSize());
         }
 
         for (int i = 0; i < numberOfBatch; ++i) {
-            std::vector<Eigen::VectorXd> batch_x_i(X.begin() + batchSize*i, X.begin() + batchSize*(i+1)); // вообще надо избавиться от копирования
-            std::vector<Eigen::VectorXd> batch_y_i(Y.begin() + batchSize*i, Y.begin() + batchSize*(i+1)); // вообще надо избавиться от копирования
+            vector<VectorXd> batch_x_i(X.begin() + batchSize*i, X.begin() + batchSize*(i+1)); // вообще надо избавиться от копирования
+            vector<VectorXd> batch_y_i(Y.begin() + batchSize*i, Y.begin() + batchSize*(i+1)); // вообще надо избавиться от копирования
 
-            std::vector<std::vector<forwardData>> layers_forward_data_batch_i = forward_propagation(batch_x_i); // в [i][j] хранятся параметры для i-ого элемента в батче и (j+1)-ого слоя
+            vector<vector<forwardData>> layers_forward_data_batch_i = forward_propagation(batch_x_i); // в [i][j] хранятся параметры для i-ого элемента в батче и (j+1)-ого слоя
 
-            std::vector<Eigen::VectorXd> grads_L_x(batchSize);
+            vector<VectorXd> grads_L_x(batchSize);
             for (int num_batch = 0; num_batch < batchSize; ++num_batch) {
                 grads_L_x[num_batch] = loss_.lossDerivative(layers_forward_data_batch_i[num_batch][numbersOfLayers_-1].x, batch_y_i[num_batch]);
             }
@@ -119,23 +119,23 @@ void Net::train(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::VectorXd>& Y
             //     metric += (1.0/X.size()) * loss_.lossFunction(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch]);
             // }
 
-            std::vector<std::vector<layerGradData>> gradients_for_batch = back_propagation(batch_x_i, grads_L_x, layers_forward_data_batch_i);
+            vector<vector<layerGradData>> gradients_for_batch = back_propagation(batch_x_i, grads_L_x, layers_forward_data_batch_i);
 
             update_weights(gradients_for_batch, optimizerData);
 
             print_progress(round((double)i/(numberOfBatch-1) * 100));
         }
-        std::cout << "\nТочность: " << accuracity(X, Y) * 100.0 << "%\n";
+        cout << "\nТочность: " << accuracity(X, Y) * 100.0 << "%\n";
         // SaveNet("../models data/temporary weights"); // пока после каждой эпохи сохраняются веса, но вообще надо сделать это опциональным аргументом, чтобы можно было выбрать сохранять или нет
     }
     
-    std::cout << "\nОбучение завершено. Точность на тренировочной выборке: " << accuracity(X, Y) * 100.0 << "%\n";
+    cout << "\nОбучение завершено. Точность на тренировочной выборке: " << accuracity(X, Y) * 100.0 << "%\n";
 }
 
 //только для чисел из mnist пока (а так в общем виде надо возвращать вектор выходной длины)
-int Net::predict(Eigen::VectorXd& x0) {
-    Eigen::VectorXd x_i = x0;
-    Eigen::VectorXd z_i;
+int Net::predict(VectorXd& x0) {
+    VectorXd x_i = x0;
+    VectorXd z_i;
     for (int l = 0; l < numbersOfLayers_; ++l) {
         layers_[0];
         z_i = layers_[l]->CalculateZ(x_i);
@@ -155,9 +155,9 @@ int Net::predict(Eigen::VectorXd& x0) {
 }
 
 //тоже пока только для mnist
-double Net::accuracity(std::vector<Eigen::VectorXd>& X, std::vector<int>& Y) {
+double Net::accuracity(vector<VectorXd>& X, vector<int>& Y) {
     if (X.size() != Y.size()) {
-        std::cout << "Некорректные данные\n";
+        cout << "Некорректные данные\n";
         return -1;
     }
     int count = 0;
@@ -170,9 +170,9 @@ double Net::accuracity(std::vector<Eigen::VectorXd>& X, std::vector<int>& Y) {
 }
 
 // принимает массив входных векторов и соответствующих правильынх выходных векторов
-double Net::accuracity(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::VectorXd>& Y) {
+double Net::accuracity(vector<VectorXd>& X, vector<VectorXd>& Y) {
     if (X.size() != Y.size()) {
-        std::cout << "Некорректные данные\n";
+        cout << "Некорректные данные\n";
         return -1;
     }
 
@@ -196,53 +196,53 @@ double Net::accuracity(std::vector<Eigen::VectorXd>& X, std::vector<Eigen::Vecto
 
 // для красивого вывода полосочек прогресса во время обчуения (наверное, разумно в отдельный класс вынести аля Visualizer)
 void Net::print_progress(int percent) {
-    std::cout << "\r";
-    for (int i = 0; i < percent/2; ++i) std::cout << "█";
-    for (int i = percent/2; i < 50; ++i) std::cout << "░";
-    std::cout << " " << percent << "%";
-    std::cout .flush();
+    cout << "\r";
+    for (int i = 0; i < percent/2; ++i) cout << "█";
+    for (int i = percent/2; i < 50; ++i) cout << "░";
+    cout << " " << percent << "%";
+    cout .flush();
 }
 
-std::ostream& operator<<(std::ostream& os, const Net& net) {
-    os << std::to_string(net.numbersOfLayers_) << " " << net.loss_.Type << "\n";
-    os << net.optimizer_.Type << " " << std::to_string(net.optimizer_.learningRate) << " " << std::to_string(net.optimizer_.beta) << "\n";
+ostream& operator<<(ostream& os, const Net& net) {
+    os << to_string(net.numbersOfLayers_) << " " << net.loss_.Type << "\n";
+    os << net.optimizer_.Type << " " << to_string(net.optimizer_.learningRate) << " " << to_string(net.optimizer_.beta) << "\n";
 
     for (int l = 0; l < net.numbersOfLayers_; ++l) {
-        const Eigen::MatrixXd& W = net.layers_[l]->GetW();
+        const MatrixXd& W = net.layers_[l]->GetW();
         os << W.rows() << " " << W.cols() << " " << net.layers_[l]->GetActivationType() << "\n" << W << "\n";
 
-        const Eigen::VectorXd& B = net.layers_[l]->GetB();
+        const VectorXd& B = net.layers_[l]->GetB();
         os << B.rows() << " " << B.cols() << "\n" << B << "\n";
     }
     return os;
 }
 
-std::istream& operator>>(std::istream& is, Net& net) {
+istream& operator>>(istream& is, Net& net) {
     int numberOfLayers;
-    std::string lossType;
-    std::string optimizerType;
+    string lossType;
+    string optimizerType;
     double learningRate, beta;
     is >> numberOfLayers >> lossType;
     is >> optimizerType >> learningRate >> beta;
-    std::vector<std::shared_ptr<Layer>> layers(numberOfLayers);
+    vector<shared_ptr<Layer>> layers(numberOfLayers);
     
     for (int l = 0; l < numberOfLayers; ++l) {
         int inSize, outSize;
-        std::string activation;
+        string activation;
         is >> outSize >> inSize >> activation;
 
-        Eigen::MatrixXd W(outSize, inSize); // с размерами все норм?
+        MatrixXd W(outSize, inSize); // с размерами все норм?
         for (int i = 0; i < outSize; ++i)
             for (int j = 0; j < inSize; ++j)
                 is >> W(i, j);
         
         is >> outSize >> inSize;
-        Eigen::VectorXd b(outSize); // с размерами все норм?
+        VectorXd b(outSize); // с размерами все норм?
         for (int i = 0; i < outSize; ++i)
             is >> b(i);
 
         // тут по идее move (ну оно в конструкторе должно быть вроде)
-        layers[l] = std::make_shared<Layer>(W, b, ActivationCreation::create(activation));
+        layers[l] = make_shared<Layer>(W, b, ActivationCreation::create(activation));
     }
 
     net.numbersOfLayers_ = numberOfLayers;

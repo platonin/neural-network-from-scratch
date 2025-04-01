@@ -36,11 +36,16 @@ int main() {
     // тренировочные выборки
     std::vector<Eigen::VectorXd> X(train_images.begin(), train_images.begin() + train_size);
     std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
-    
-    net.train(X, Y, 6, 10);
+
+    auto start_time = std::chrono::high_resolution_clock::now();
+    net.train(X, Y, 4, 10);
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_time = end_time - start_time;
+    std::cout << "Training time: " << elapsed_time.count() << " seconds" << std::endl;
+
 
     // сохранение весов нейросети в файл temporary_weights.txt в переданной папке
-    net.SaveNet2("../models data");
+    net.SaveNet("../models data");
 
     return 0;
 }
