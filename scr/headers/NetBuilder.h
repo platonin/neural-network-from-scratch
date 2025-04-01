@@ -22,54 +22,17 @@ private:
     Optimizer optimizer_;
 
 public:
-    NetBuilder(int inputSize) : inputSize_(inputSize), netIsReadyToCreate_(3, false) {}
+    NetBuilder(int inputSize);
 
-    void setLoss(LossFunc func) {
-        loss_ = func;
-        netIsReadyToCreate_[0] = true;
-    }
+    void setLoss(LossFunc func);
 
-    void setLayers(const std::vector<SetLayerParams> setLayers) {
-        numbersOfLayers_ = setLayers.size();
-        int prev_layer_size = inputSize_;
-        for (int i = 0; i < numbersOfLayers_; ++i) {
-            int out_size = setLayers[i].layerSize;
-            ActivationFunc activation = setLayers[i].activation;
-            // std::cout << "-----: " << activation.activation(Eigen::VectorXd(10));
-            layers_.push_back(std::make_shared<Layer>(prev_layer_size, out_size, activation));
-            prev_layer_size = out_size;
-        }
-        netIsReadyToCreate_[1] = true;
-    }
+    void setLayers(const std::vector<SetLayerParams> setLayers);
 
-    void setOptimizer(Optimizer optimizer) {
-        optimizer_ = optimizer;
-        netIsReadyToCreate_[2] = true;
-    }
+    void setOptimizer(Optimizer optimizer);
 
-    bool isReady() {
-        bool flag = true;
-        for (int i = 0; i < netIsReadyToCreate_.size(); ++i) {
-            flag = flag & netIsReadyToCreate_[i];
-        }
-        return flag;
-    }
+    bool isReady();
 
-    Net createNet() {
-        if (isReady()) {
-            // копирование, а не move, чтобы NetBuilder был многоразовым
-            Net net;
-            net.loss_ = loss_;
-            net.numbersOfLayers_ = numbersOfLayers_;
-            net.layers_ = layers_; 
-            net.optimizer_ = optimizer_;
-            return net;
-
-        } else {
-            std::cout << "Не хватает параметров для создания нейросети.\n";
-        }
-        return Net();
-    }
+    Net createNet();
 };
 
 }; // namespace NeuralNetwork

@@ -1,0 +1,54 @@
+#include "NetBuilder.h"
+#include <iostream>
+
+namespace NeuralNetwork {
+
+NetBuilder::NetBuilder(int inputSize) : inputSize_(inputSize), netIsReadyToCreate_(3, false) {}
+
+void NetBuilder::setLoss(LossFunc func) {
+    loss_ = func;
+    netIsReadyToCreate_[0] = true;
+}
+
+void NetBuilder::setLayers(const std::vector<SetLayerParams> setLayers) {
+    numbersOfLayers_ = setLayers.size();
+    int prev_layer_size = inputSize_;
+    for (int i = 0; i < numbersOfLayers_; ++i) {
+        int out_size = setLayers[i].layerSize;
+        ActivationFunc activation = setLayers[i].activation;
+        layers_.push_back(std::make_shared<Layer>(prev_layer_size, out_size, activation));
+        prev_layer_size = out_size;
+    }
+    netIsReadyToCreate_[1] = true;
+}
+
+void NetBuilder::setOptimizer(Optimizer optimizer) {
+    optimizer_ = optimizer;
+    netIsReadyToCreate_[2] = true;
+}
+
+bool NetBuilder::isReady() {
+    bool flag = true;
+    for (int i = 0; i < netIsReadyToCreate_.size(); ++i) {
+        flag = flag & netIsReadyToCreate_[i];
+    }
+    return flag;
+}
+
+Net NetBuilder::createNet() {
+    if (isReady()) {
+        // копирование, а не move, чтобы NetBuilder был многоразовым
+        Net net;
+        net.loss_ = loss_;
+        net.numbersOfLayers_ = numbersOfLayers_;
+        net.layers_ = layers_; 
+        net.optimizer_ = optimizer_;
+        return net;
+
+    } else {
+        std::cout << "Не хватает параметров для создания нейросети.\n";
+    }
+    return Net();
+}
+
+}; // namespace NeuralNetwork
