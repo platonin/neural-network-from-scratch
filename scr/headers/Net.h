@@ -43,17 +43,17 @@ public:
 
     void setLayers(vector<shared_ptr<Layer>>& layers);
 
-    vector<vector<forwardData>> forward_propagation(vector<VectorXd>& X);
-    vector<vector<layerGradData>> back_propagation(vector<VectorXd>& X, vector<VectorXd>& grads_L_x, vector<vector<forwardData>>& layers_forward_data);
+    vector<vector<forwardData>> forward_propagation(span<VectorXd>& X);
+    vector<vector<layerGradData>> back_propagation(span<VectorXd>& X, vector<VectorXd>& grads_L_x, vector<vector<forwardData>>& layers_forward_data);
 
     void update_weights(vector<vector<layerGradData>>& gradients_for_batch, vector<layerOptimizerData>& optimizerData);
 
-    void train(vector<VectorXd>& X, vector<VectorXd>& Y, int epochs, int batchSize);
+    void train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize);
 
     int predict(VectorXd& x0);
 
     double accuracity(vector<VectorXd>& X, vector<int>& Y);
-    double accuracity(vector<VectorXd>& X, vector<VectorXd>& Y);
+    double accuracity(span<VectorXd>& X, span<VectorXd>& Y);
 
     void print_progress(int percent);
 };

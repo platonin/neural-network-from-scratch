@@ -3,6 +3,7 @@
 #include "./headers/DataLoader.h"
 #include <iostream>
 #include <iomanip>
+#include <span>
 
 using namespace NeuralNetwork;
 

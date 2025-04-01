@@ -27,7 +27,7 @@ void Net::setLayers(vector<shared_ptr<Layer>>& layers) {
     layers_ = std::move(layers); // или тут не надо move ?
 }
 
-vector<vector<forwardData>> Net::forward_propagation(vector<VectorXd>& X) {
+vector<vector<forwardData>> Net::forward_propagation(span<VectorXd>& X) {
     int batchSize = X.size();
     vector<vector<forwardData>> layers_data(batchSize, vector<forwardData>(numbersOfLayers_));
     for (int i = 0; i < batchSize; ++i) {
@@ -46,7 +46,7 @@ vector<vector<forwardData>> Net::forward_propagation(vector<VectorXd>& X) {
     return layers_data;
 }
 
-vector<vector<layerGradData>> Net::back_propagation(vector<VectorXd>& X, vector<VectorXd>& grads_L_x, vector<vector<forwardData>>& layers_forward_data) {
+vector<vector<layerGradData>> Net::back_propagation(span<VectorXd>& X, vector<VectorXd>& grads_L_x, vector<vector<forwardData>>& layers_forward_data) {
     int batchSize = grads_L_x.size();
     vector<vector<layerGradData>> layers_back_data(batchSize, vector<layerGradData>(numbersOfLayers_));
     for (int i = 0; i < batchSize; ++i) {
@@ -87,7 +87,7 @@ void Net::update_weights(vector<vector<layerGradData>>& gradients_for_batch, vec
     }
 }
 
-void Net::train(vector<VectorXd>& X, vector<VectorXd>& Y, int epochs, int batchSize) {
+void Net::train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize) {
     int numberOfBatch = X.size()/batchSize; // надо сделать, чтобы если нацело не делится, то захватывался последний неполноценный батч
     cout << "Количество батчей: " << numberOfBatch << "\n";
     for (int numberEpoch = 1; numberEpoch <= epochs; ++numberEpoch) {
@@ -104,8 +104,8 @@ void Net::train(vector<VectorXd>& X, vector<VectorXd>& Y, int epochs, int batchS
         }
 
         for (int i = 0; i < numberOfBatch; ++i) {
-            vector<VectorXd> batch_x_i(X.begin() + batchSize*i, X.begin() + batchSize*(i+1)); // вообще надо избавиться от копирования
-            vector<VectorXd> batch_y_i(Y.begin() + batchSize*i, Y.begin() + batchSize*(i+1)); // вообще надо избавиться от копирования
+            span<VectorXd> batch_x_i(X.begin() + batchSize*i, X.begin() + batchSize*(i+1));
+            span<VectorXd> batch_y_i(Y.begin() + batchSize*i, Y.begin() + batchSize*(i+1));
 
             vector<vector<forwardData>> layers_forward_data_batch_i = forward_propagation(batch_x_i); // в [i][j] хранятся параметры для i-ого элемента в батче и (j+1)-ого слоя
 
@@ -170,7 +170,7 @@ double Net::accuracity(vector<VectorXd>& X, vector<int>& Y) {
 }
 
 // принимает массив входных векторов и соответствующих правильынх выходных векторов
-double Net::accuracity(vector<VectorXd>& X, vector<VectorXd>& Y) {
+double Net::accuracity(span<VectorXd>& X, span<VectorXd>& Y) {
     if (X.size() != Y.size()) {
         cout << "Некорректные данные\n";
         return -1;
