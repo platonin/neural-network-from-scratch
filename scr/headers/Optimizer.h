@@ -8,6 +8,8 @@
 #include "Layer.h"
 #include "NetTypes.h"
 
+namespace NeuralNetwork {
+
 struct Optimizer {
     // их тут хранить или в Net?
     double learningRate;
@@ -74,5 +76,7 @@ public:
         return GetSGD(1); // по умолчанию SGD с learning rate = 1
     }
 };
+
+}; // namespace NeuralNetwork
 
 #endif 

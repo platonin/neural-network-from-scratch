@@ -11,6 +11,8 @@
 #include <iomanip> //это для вывода, надо убрать потом будет 
 class NetBuilder;
 
+namespace NeuralNetwork {
+
 class Net {
 private:
     LossFunc loss_;
@@ -296,5 +298,7 @@ std::istream& operator>>(std::istream& is, Net& net) {
     net.layers_ = std::move(layers);
     return is;
 }
+
+}; // namespace NeuralNetwork
 
 #endif

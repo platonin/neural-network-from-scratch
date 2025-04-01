@@ -4,6 +4,8 @@
 #include "Layer.h"
 #include "ActivationFunction.h"
 
+namespace NeuralNetwork {
+
 struct LossFunc {
     std::function<double(const Eigen::VectorXd&, const Eigen::VectorXd&)> lossFunction;
     std::function<Eigen::VectorXd(const Eigen::VectorXd&, const Eigen::VectorXd&)> lossDerivative;
@@ -65,5 +67,7 @@ public:
         return {};
     }
 };
+
+}; // namespace NeuralNetwork
 
 #endif

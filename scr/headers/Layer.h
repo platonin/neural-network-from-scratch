@@ -6,6 +6,8 @@
 #include <random>
 #include <cmath>
 
+namespace NeuralNetwork {
+
 class Layer {
 private: // 
     int inputSize_;
@@ -84,4 +86,5 @@ public:
     }
 };
 
+}; // namespace NeuralNetwork
 #endif

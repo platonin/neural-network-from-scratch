@@ -3,13 +3,15 @@
 #include <iostream>
 #include <iomanip>
 
+using namespace NeuralNetwork;
+
 int main() {
     std::string path_to_weigths = "../models data/temporary_weights.txt";
     // std::string path_to_weigths = "../models data/weights_96_accurency.txt"; // файл с конфигурацией на 96% точности
     std::ifstream file(path_to_weigths);
 
     // загрузка весов нейросети из файла
-    Net net;
+    NeuralNetwork::Net net;
     file >> net;
 
     std::string train_images_path = "../train data/MNIST numbers/t10k-images.idx3-ubyte";

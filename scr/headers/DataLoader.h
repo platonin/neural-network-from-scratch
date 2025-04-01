@@ -14,6 +14,8 @@
 
 class Net;
 
+namespace NeuralNetwork {
+
 namespace DataLoader {
     using namespace std;
     using namespace Eigen;
@@ -118,6 +120,8 @@ namespace DataLoader {
     //     imshow("MNIST Image", img8bit);
     //     waitKey(0); // Ожидание нажатия клавиши
     // }
+};
+
 };
 
 #endif

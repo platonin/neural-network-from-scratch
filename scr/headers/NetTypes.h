@@ -3,6 +3,8 @@
 
 #include <Eigen/Dense>
 
+namespace NeuralNetwork {
+
 struct forwardData {
     Eigen::VectorXd z;
     Eigen::VectorXd x;
@@ -25,6 +27,8 @@ struct LayerParams {
     int outputSize;
     ActivationFunc activationType;
 };
+
+}; // namespace NeuralNetwork
 
 
 

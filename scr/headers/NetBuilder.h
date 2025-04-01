@@ -3,6 +3,8 @@
 
 #include "Net.h"
 
+namespace NeuralNetwork {
+
 struct SetLayerParams {
     int layerSize;
     ActivationFunc activation;
@@ -71,5 +73,7 @@ public:
         return Net();
     }
 };
+
+}; // namespace NeuralNetwork
 
 #endif
