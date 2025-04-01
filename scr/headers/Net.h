@@ -84,17 +84,17 @@ public:
             // Eigen::VectorXd grad_L_x_i = grads_L_x[i];
             int L = numbersOfLayers_-1;
 
-            // layers_back_data[i][L].grad_b = layers_[L]->getDerActivationFromZ(layers_forward_data[i][L].z).cwiseProduct(grads_L_x[i]);
-            layers_back_data[i][L].grad_b = layers_[L]->getDerActivationFromZ(layers_forward_data[i][L].z) * grads_L_x[i]; // стало matrix[KxK] * matrix[Kx1] = matrix[Kx1]
+            // layers_back_data[i][L].grad_b = layers_[L]->CalculateActivationDer(layers_forward_data[i][L].z).cwiseProduct(grads_L_x[i]);
+            layers_back_data[i][L].grad_b = layers_[L]->CalculateActivationDer(layers_forward_data[i][L].z) * grads_L_x[i]; // стало matrix[KxK] * matrix[Kx1] = matrix[Kx1]
             layers_back_data[i][L].grad_W = layers_back_data[i][L].grad_b * layers_forward_data[i][L-1].x.transpose();
             // std::cout << "ok ok\n"; 
 
             for (int l = L-1; l > 0; --l) {
-                // layers_back_data[i][l].grad_b = layers_[l]->getDerActivationFromZ(layers_forward_data[i][l].z).cwiseProduct(layers_[l+1]->GetW().transpose() * layers_back_data[i][l+1].grad_b);
-                layers_back_data[i][l].grad_b = layers_[l]->getDerActivationFromZ(layers_forward_data[i][l].z) * layers_[l+1]->GetW().transpose() * layers_back_data[i][l+1].grad_b;
+                // layers_back_data[i][l].grad_b = layers_[l]->CalculateActivationDer(layers_forward_data[i][l].z).cwiseProduct(layers_[l+1]->GetW().transpose() * layers_back_data[i][l+1].grad_b);
+                layers_back_data[i][l].grad_b = layers_[l]->CalculateActivationDer(layers_forward_data[i][l].z) * layers_[l+1]->GetW().transpose() * layers_back_data[i][l+1].grad_b;
                 layers_back_data[i][l].grad_W = layers_back_data[i][l].grad_b * layers_forward_data[i][l-1].x.transpose();
             }
-            layers_back_data[i][0].grad_b = layers_[0]->getDerActivationFromZ(layers_forward_data[i][0].z) * layers_[1]->GetW().transpose() * layers_back_data[i][1].grad_b;
+            layers_back_data[i][0].grad_b = layers_[0]->CalculateActivationDer(layers_forward_data[i][0].z) * layers_[1]->GetW().transpose() * layers_back_data[i][1].grad_b;
             layers_back_data[i][0].grad_W = layers_back_data[i][0].grad_b * X[i].transpose();
         }
         return layers_back_data;

@@ -21,8 +21,6 @@ private:
     std::vector<std::shared_ptr<Layer>> layers_;
     Optimizer optimizer_;
 
-    
-
 public:
     NetBuilder(int inputSize) : inputSize_(inputSize), netIsReadyToCreate_(3, false) {}
 

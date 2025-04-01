@@ -2,6 +2,7 @@
 #define NET_TYPES_H
 
 #include <Eigen/Dense>
+#include "ActivationFunction.h"
 
 namespace NeuralNetwork {
 
