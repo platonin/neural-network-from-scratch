@@ -4,30 +4,21 @@ namespace NeuralNetwork {
 
 Net::Net() : loss_(), numbersOfLayers_(0), layers_(), optimizer_(OptimizerCreation::GetSGD(1)) {}
 
-void Net::SaveNet(string path) {
+void Net::SaveNet(const string& path) const {
     string fileName = path + "/temporary_weights.txt";
     ofstream file(fileName);
     file << *this; //это правильно?
     file.close();
 }
 
-void Net::SaveNet(string path, int num) {
+void Net::SaveNet(const string& path, int num) const {
     string fileName = path + "/weights_" + to_string(num) + ".txt";
     ofstream file(fileName);
     file << *this; //это правильно?
     file.close();
 }
 
-void Net::setLayers(vector<shared_ptr<Layer>>& layers) {
-    if (layers.size() != numbersOfLayers_) {
-        cout << "Некорректные данные слоев.\n";
-        return;
-    }
-
-    layers_ = std::move(layers); // или тут не надо move ?
-}
-
-vector<vector<forwardData>> Net::forward_propagation(span<VectorXd>& X) {
+vector<vector<forwardData>> Net::forward_propagation(span<VectorXd> X) {
     int batchSize = X.size();
     vector<vector<forwardData>> layers_data(batchSize, vector<forwardData>(numbersOfLayers_));
     for (int i = 0; i < batchSize; ++i) {
@@ -46,7 +37,7 @@ vector<vector<forwardData>> Net::forward_propagation(span<VectorXd>& X) {
     return layers_data;
 }
 
-vector<vector<layerGradData>> Net::back_propagation(span<VectorXd>& X, vector<VectorXd>& grads_L_x, vector<vector<forwardData>>& layers_forward_data) {
+vector<vector<layerGradData>> Net::back_propagation(span<VectorXd> X, const vector<VectorXd>& grads_L_x, const vector<vector<forwardData>>& layers_forward_data) {
     int batchSize = grads_L_x.size();
     vector<vector<layerGradData>> layers_back_data(batchSize, vector<layerGradData>(numbersOfLayers_));
     for (int i = 0; i < batchSize; ++i) {
@@ -87,11 +78,33 @@ void Net::update_weights(vector<vector<layerGradData>>& gradients_for_batch, vec
     }
 }
 
+// чтобы перемешивать тренировочную выборку перед каждой эпохой
+void Net::shuffle_train_data(span<VectorXd> X, span<VectorXd> Y) {
+    std::random_device rd;
+    std::mt19937 g(rd());
+
+    std::vector<size_t> indices(X.size());
+    for (size_t i = 0; i < indices.size(); ++i)
+        indices[i] = i;
+
+    std::shuffle(indices.begin(), indices.end(), g);
+
+    std::vector<VectorXd> X_shuffled(X.size());
+    std::vector<VectorXd> Y_shuffled(Y.size());
+
+    for (size_t i = 0; i < indices.size(); ++i) {
+        X_shuffled[i] = X[indices[i]];
+        Y_shuffled[i] = Y[indices[i]];
+    }
+
+    std::copy(X_shuffled.begin(), X_shuffled.end(), X.begin());
+    std::copy(Y_shuffled.begin(), Y_shuffled.end(), Y.begin());
+}
+
 void Net::train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize) {
     int numberOfBatch = X.size()/batchSize; // надо сделать, чтобы если нацело не делится, то захватывался последний неполноценный батч
-    cout << "Количество батчей: " << numberOfBatch << "\n";
     for (int numberEpoch = 1; numberEpoch <= epochs; ++numberEpoch) {
-        cout << "\nЭпоха номер: " << numberEpoch << "\n";
+        Logger::printEpoch(numberEpoch);
         double metric = 0;
 
         // инициализация optimizerData нулевыми значениями для матриц весов и сдвигов каждого слоя
@@ -102,6 +115,8 @@ void Net::train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize) {
             optimizerData[l].G_W = MatrixXd::Zero(layers_[l]->GetOutputSize(), layers_[l]->GetInputSize());
             optimizerData[l].G_b = VectorXd::Zero(layers_[l]->GetOutputSize());
         }
+
+        shuffle_train_data(X, Y); // перемешиваем выборку 
 
         for (int i = 0; i < numberOfBatch; ++i) {
             span<VectorXd> batch_x_i(X.begin() + batchSize*i, X.begin() + batchSize*(i+1));
@@ -114,26 +129,26 @@ void Net::train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize) {
                 grads_L_x[num_batch] = loss_.lossDerivative(layers_forward_data_batch_i[num_batch][numbersOfLayers_-1].x, batch_y_i[num_batch]);
             }
 
-            // вообще это для вывода ошибки после каждой эпохи, но оно как-то криво считается, потом поправлю
-            // for (int num_batch = 0; num_batch < batchSize; ++num_batch) {
-            //     metric += (1.0/X.size()) * loss_.lossFunction(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch]);
-            // }
+            // для вывода статистики
+            for (int num_batch = 0; num_batch < batchSize; ++num_batch) {
+                metric += (1.0/X.size()) * loss_.lossFunction(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch]);
+            }
 
             vector<vector<layerGradData>> gradients_for_batch = back_propagation(batch_x_i, grads_L_x, layers_forward_data_batch_i);
 
             update_weights(gradients_for_batch, optimizerData);
 
-            print_progress(round((double)i/(numberOfBatch-1) * 100));
+            Logger::printProgress(round((double)i/(numberOfBatch-1) * 100));
         }
-        cout << "\nТочность: " << accuracity(X, Y) * 100.0 << "%\n";
-        // SaveNet("../models data/temporary weights"); // пока после каждой эпохи сохраняются веса, но вообще надо сделать это опциональным аргументом, чтобы можно было выбрать сохранять или нет
+        
+        Logger::printMetrics(this, X, Y, metric);
     }
     
-    cout << "\nОбучение завершено. Точность на тренировочной выборке: " << accuracity(X, Y) * 100.0 << "%\n";
+    Logger::printFinish(this, X, Y);
 }
 
 //только для чисел из mnist пока (а так в общем виде надо возвращать вектор выходной длины)
-int Net::predict(VectorXd& x0) {
+int Net::predict(const VectorXd& x0) const {
     VectorXd x_i = x0;
     VectorXd z_i;
     for (int l = 0; l < numbersOfLayers_; ++l) {
@@ -154,8 +169,17 @@ int Net::predict(VectorXd& x0) {
     return mx_ind;
 }
 
+VectorXd Net::forward(const VectorXd& x) const {
+    VectorXd x_i = x;
+    VectorXd z_i;
+    for (int l = 0; l < numbersOfLayers_; ++l) {
+        x_i = layers_[l]->Forward(x_i);
+    }
+    return x_i;
+}
+
 //тоже пока только для mnist
-double Net::accuracity(vector<VectorXd>& X, vector<int>& Y) {
+double Net::accuracity(span<VectorXd> X, span<int> Y) const {
     if (X.size() != Y.size()) {
         cout << "Некорректные данные\n";
         return -1;
@@ -170,7 +194,7 @@ double Net::accuracity(vector<VectorXd>& X, vector<int>& Y) {
 }
 
 // принимает массив входных векторов и соответствующих правильынх выходных векторов
-double Net::accuracity(span<VectorXd>& X, span<VectorXd>& Y) {
+double Net::accuracity(span<VectorXd> X, span<VectorXd> Y) const {
     if (X.size() != Y.size()) {
         cout << "Некорректные данные\n";
         return -1;
@@ -192,15 +216,6 @@ double Net::accuracity(span<VectorXd>& X, span<VectorXd>& Y) {
         }
     }
     return ((double)count) / X.size();
-}
-
-// для красивого вывода полосочек прогресса во время обчуения (наверное, разумно в отдельный класс вынести аля Visualizer)
-void Net::print_progress(int percent) {
-    cout << "\r";
-    for (int i = 0; i < percent/2; ++i) cout << "█";
-    for (int i = percent/2; i < 50; ++i) cout << "░";
-    cout << " " << percent << "%";
-    cout .flush();
 }
 
 ostream& operator<<(ostream& os, const Net& net) {
@@ -250,6 +265,27 @@ istream& operator>>(istream& is, Net& net) {
     net.optimizer_ = OptimizerCreation::create(optimizerType, learningRate, beta);
     net.layers_ = std::move(layers);
     return is;
+}
+
+static void Logger::printProgress(int percent) {
+    cout << "\r";
+    for (int i = 0; i < percent/2; ++i) cout << "█";
+    for (int i = percent/2; i < 50; ++i) cout << "░";
+    cout << " " << percent << "%";
+    cout .flush();
+}
+
+void Logger::printMetrics(Net* net, span<VectorXd> X, span<VectorXd> Y, double metric) {
+    cout << "\nТочность: " << net->accuracity(X, Y) * 100.0 << "% ";
+    cout << "Ошибка: " << metric << "\n";
+}
+
+void Logger::printFinish(Net* net, span<VectorXd> X, span<VectorXd> Y) {
+    cout << "\nОбучение завершено. Точность на тренировочной выборке: " << net->accuracity(X, Y) * 100.0 << "%\n";
+}
+
+void Logger::printEpoch(int num) {
+    cout << "\nЭпоха номер: " << num << "\n";
 }
 
 }; // namespace NeuralNetwork

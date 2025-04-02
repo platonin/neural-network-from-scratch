@@ -23,13 +23,15 @@ public:
     Layer(int inputSize, int outputSize, ActivationFunc func);
     Layer(Eigen::MatrixXd W, Eigen::VectorXd b, ActivationFunc func);
 
-    Eigen::VectorXd CalculateZ(const Eigen::VectorXd& prev_x);
-    Eigen::VectorXd CalculateX(const Eigen::VectorXd& z);
+    Eigen::VectorXd CalculateZ(const Eigen::VectorXd& prev_x) const;
+    Eigen::VectorXd CalculateX(const Eigen::VectorXd& z) const;
+    Eigen::VectorXd Forward(const Eigen::VectorXd& prev_x) const;
+
     void UpdateW(const Eigen::MatrixXd& gradW);
     void UpdateB(const Eigen::MatrixXd& gradB);
 
-    const Eigen::MatrixXd& GetW();
-    const Eigen::VectorXd& GetB();
+    const Eigen::MatrixXd& GetW() const;
+    const Eigen::VectorXd& GetB() const;
     Eigen::MatrixXd CalculateActivationDer(const Eigen::VectorXd& z) const;
 
     int GetInputSize() const;

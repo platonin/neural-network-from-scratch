@@ -22,12 +22,16 @@ Layer::Layer(int inputSize, int outputSize, ActivationFunc func)
 Layer::Layer(Eigen::MatrixXd W, Eigen::VectorXd b, ActivationFunc func) 
     : W_(W), b_(b), inputSize_(W.cols()), outputSize_(W.rows()), activationFunction_(func) {}
 
-Eigen::VectorXd Layer::CalculateZ(const Eigen::VectorXd& prev_x) {
+Eigen::VectorXd Layer::CalculateZ(const Eigen::VectorXd& prev_x) const{
     return W_ * prev_x + b_;
 }
 
-Eigen::VectorXd Layer::CalculateX(const Eigen::VectorXd& z) {
+Eigen::VectorXd Layer::CalculateX(const Eigen::VectorXd& z) const {
     return activationFunction_.activation(z);
+}
+
+Eigen::VectorXd Layer::Forward(const Eigen::VectorXd& prev_x) const {
+    return CalculateX(CalculateZ(prev_x));
 }
 
 void Layer::UpdateW(const Eigen::MatrixXd& gradW) {
@@ -38,11 +42,11 @@ void Layer::UpdateB(const Eigen::MatrixXd& gradB) {
     b_ -= gradB;
 }
 
-const Eigen::MatrixXd& Layer::GetW() {
+const Eigen::MatrixXd& Layer::GetW() const {
     return W_;
 }
 
-const Eigen::VectorXd& Layer::GetB() {
+const Eigen::VectorXd& Layer::GetB() const {
     return b_;
 }
 
