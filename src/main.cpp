@@ -39,7 +39,7 @@ int main() {
     std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
 
     // auto start_time = std::chrono::high_resolution_clock::now();
-    net.train(X, Y, 4, 10);
+    net.train(X, Y, 5, 10);
     // auto end_time = std::chrono::high_resolution_clock::now();
     // std::chrono::duration<double> elapsed_time = end_time - start_time;
     // std::cout << "Training time: " << elapsed_time.count() << " seconds" << std::endl;
