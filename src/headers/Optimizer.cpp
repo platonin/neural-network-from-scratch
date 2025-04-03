@@ -51,7 +51,7 @@ Optimizer OptimizerCreation::create(std::string type, double learningRate, doubl
     if (type == "Momentum") return getMomentum(learningRate, beta);
     if (type == "RMSProp") return getRMSProp(learningRate, beta);
     if (type == "Adam") return getAdam(learningRate, beta);
-    else std::cerr << "Неизвестный тип оптимизатора: " << type;
+    else throw std::invalid_argument("Неизвестный тип оптимизатора: " + type);
     return getSGD(1); // по умолчанию SGD с learning rate = 1
 }
 

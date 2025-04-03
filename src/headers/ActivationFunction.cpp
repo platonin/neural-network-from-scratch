@@ -78,8 +78,8 @@ namespace NeuralNetwork {
         if (type == "Sigmoid") return getSigmod();
         if (type == "Softmax") return getSoftmax();
         if (type == "LeakyReLU") return getLeakyReLU();
-        else std::cerr << "Неизвестный тип активационной функции: " + type;
-        return {};
+        // здесь мне кажется разумно кинуть исключение (или лучше, например, вернуть Sigmoid по умолчанию?)
+        else throw std::invalid_argument("Неизвестный тип активационной функции: " + type);
     }
 
 }; // namespace NeuralNetwork

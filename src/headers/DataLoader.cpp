@@ -15,8 +15,9 @@ namespace NeuralNetwork {
         vector<MatrixXd> loadMNISTImages(const string &path) {
             ifstream file(path, ios::binary);
             if (!file.is_open()) {
-                cerr << "Не удалось открыть " << path << endl;
-                exit(1);
+                // cerr << "Не удалось открыть " << path << endl;
+                // exit(1);
+                throw std::runtime_error("Не удалось открыть файл: " + path);
             }
 
             int magic = readInt(file);
@@ -40,15 +41,15 @@ namespace NeuralNetwork {
         vector<int> loadMNISTIlabels(const string &path) {
             ifstream file(path, ios::binary);
             if (!file.is_open()) {
-                cerr << "Не удалось открыть " << path << endl;
-                exit(1);
+                throw std::runtime_error("Не удалось открыть файл: " + path);
             }
 
             int magic = readInt(file);
             int numLabels = readInt(file);
             vector<int> labels(0);
             if (magic != 2049) {
-                cout << "Неправильный формат лейблов";
+                // cout << "Неправильный формат лейблов";
+                throw std::runtime_error("Неправильный формат лейблов");
             } else {
                 for (int i = 0; i < numLabels; ++i) {
                     int label = file.get();

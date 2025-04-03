@@ -247,9 +247,13 @@ istream& operator>>(istream& is, Net& net) {
         is >> outSize >> inSize >> activation;
 
         MatrixXd W(outSize, inSize); // с размерами все норм?
-        for (int i = 0; i < outSize; ++i)
-            for (int j = 0; j < inSize; ++j)
-                is >> W(i, j);
+        for (int i = 0; i < outSize; ++i) {
+            for (int j = 0; j < inSize; ++j) {
+                string t;
+                is >> t;
+                W(i, j) = std::stod(t);
+            }
+        }
         
         is >> outSize >> inSize;
         VectorXd b(outSize); // с размерами все норм?

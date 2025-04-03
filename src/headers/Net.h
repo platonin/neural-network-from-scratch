@@ -33,6 +33,8 @@ private:
     vector<shared_ptr<Layer>> layers_;
     Optimizer optimizer_;
 
+    Net();
+
     vector<vector<forwardData>> forwardPropagation(span<VectorXd> X);
     vector<vector<layerGradData>> backPropagation(span<VectorXd> X, const vector<VectorXd>& grads_L_x, const vector<vector<forwardData>>& layers_forward_data);
     void shuffleTrainData(span<VectorXd> X, span<VectorXd> Y);
@@ -40,7 +42,6 @@ private:
     void updateWeights(vector<vector<layerGradData>>& gradients_for_batch, vector<layerOptimizerData>& optimizerData);
 
 public:
-    Net();
     friend class NetBuilder;
     friend ostream& operator<<(ostream& os, const Net& net);
     friend istream& operator>>(istream& is, Net& net);

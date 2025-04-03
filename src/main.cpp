@@ -17,7 +17,7 @@ int main() {
     NeuralNetwork::NetBuilder builder(784); // задаем входной размер при создании
 
     builder.setLoss(LossCreation::getCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
-    builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
+    builder.setLayers({{30, ReLU}, {20, ReLU}, {10, softmax}}); // добавляем слои с функциями активации
     // builder.setOptimizer(OptimizerCreation::getSGD(1)); // устанавливаем оптимизатор SGD
     // builder.setOptimizer(OptimizerCreation::getRMSProp(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
     builder.setOptimizer(OptimizerCreation::getAdam(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
@@ -39,11 +39,11 @@ int main() {
     std::vector<Eigen::VectorXd> X(train_images.begin(), train_images.begin() + train_size);
     std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
 
-    // auto start_time = std::chrono::high_resolution_clock::now();
-    net.train(X, Y, 5, 10);
-    // auto end_time = std::chrono::high_resolution_clock::now();
-    // std::chrono::duration<double> elapsed_time = end_time - start_time;
-    // std::cout << "Training time: " << elapsed_time.count() << " seconds" << std::endl;
+    auto start_time = std::chrono::high_resolution_clock::now();
+    net.train(X, Y, 4, 60);
+    auto end_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_time = end_time - start_time;
+    std::cout << "Training time: " << elapsed_time.count() << " seconds" << std::endl;
 
 
     // сохранение весов нейросети в файл temporary_weights.txt в переданной папке

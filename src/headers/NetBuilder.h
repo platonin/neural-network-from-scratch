@@ -33,6 +33,8 @@ public:
     bool isReady();
 
     Net createNet();
+
+    static Net loadNet(const std::string& path);
 };
 
 }; // namespace NeuralNetwork

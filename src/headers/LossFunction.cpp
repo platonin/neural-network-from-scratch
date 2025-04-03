@@ -52,7 +52,7 @@ LossFunc LossCreation::create(std::string type) {
     if (type == "MSE") return getMSE();
     if (type == "MAE") return getMAE();
     if (type == "CrossEntropy") return getCrossEntropy();
-    else std::cerr << "Неизвестный тип активационной функции: " + type;
+    else throw std::invalid_argument("Неизвестный тип функции потерь: " + type);
     return {};
 }
 

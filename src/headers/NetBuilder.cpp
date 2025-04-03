@@ -35,6 +35,18 @@ bool NetBuilder::isReady() {
     return flag;
 }
 
+Net NetBuilder::loadNet(const std::string& path) {
+    Net net;
+    std::ifstream file(path);
+    if (file.is_open()) {
+        file >> net;
+        file.close();
+    } else {
+        throw std::runtime_error("Не удалось открыть файл: " + path);
+    }
+    return net;
+}
+
 Net NetBuilder::createNet() {
     if (isReady()) {
         // копирование, а не move, чтобы NetBuilder был многоразовым
@@ -44,11 +56,9 @@ Net NetBuilder::createNet() {
         net.layers_ = layers_; 
         net.optimizer_ = optimizer_;
         return net;
-
-    } else {
-        std::cout << "Не хватает параметров для создания нейросети.\n";
     }
-    return Net();
+    // тут мне кажется, что лучше ошибку кидать O_O
+    throw std::runtime_error("Не хватает параметров для создания нейросети.");
 }
 
 }; // namespace NeuralNetwork
