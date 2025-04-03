@@ -33,11 +33,11 @@ private:
     vector<shared_ptr<Layer>> layers_;
     Optimizer optimizer_;
 
-    vector<vector<forwardData>> forward_propagation(span<VectorXd> X);
-    vector<vector<layerGradData>> back_propagation(span<VectorXd> X, const vector<VectorXd>& grads_L_x, const vector<vector<forwardData>>& layers_forward_data);
-    void shuffle_train_data(span<VectorXd> X, span<VectorXd> Y);
+    vector<vector<forwardData>> forwardPropagation(span<VectorXd> X);
+    vector<vector<layerGradData>> backPropagation(span<VectorXd> X, const vector<VectorXd>& grads_L_x, const vector<vector<forwardData>>& layers_forward_data);
+    void shuffleTrainData(span<VectorXd> X, span<VectorXd> Y);
 
-    void update_weights(vector<vector<layerGradData>>& gradients_for_batch, vector<layerOptimizerData>& optimizerData);
+    void updateWeights(vector<vector<layerGradData>>& gradients_for_batch, vector<layerOptimizerData>& optimizerData);
 
 public:
     Net();
@@ -47,8 +47,8 @@ public:
 
     
 
-    void SaveNet(const string& path) const;
-    void SaveNet(const string& path, int num) const;
+    void saveNet(const string& path) const;
+    void saveNet(const string& path, int num) const;
 
     void train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize);
 

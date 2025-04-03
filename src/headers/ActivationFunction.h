@@ -26,10 +26,10 @@ namespace NeuralNetwork {
         static Eigen::MatrixXd Softmax_der(const Eigen::VectorXd& vec);
 
     public:
-        static ActivationFunc GetReLU();
-        static ActivationFunc GetSigmod();
-        static ActivationFunc GetSoftmax();
-        static ActivationFunc GetLeakyReLU();
+        static ActivationFunc getReLU();
+        static ActivationFunc getSigmod();
+        static ActivationFunc getSoftmax();
+        static ActivationFunc getLeakyReLU();
         static ActivationFunc create(std::string type);
     };
 

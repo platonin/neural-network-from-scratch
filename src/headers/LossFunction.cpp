@@ -36,22 +36,22 @@ Eigen::VectorXd LossCreation::CrossEntropy_der(const Eigen::VectorXd& x, const E
     return -y.array() / x.array();
 }
 
-LossFunc LossCreation::GetMSE() {
+LossFunc LossCreation::getMSE() {
     return {&MSE, &MSE_der, "MSE"};
 }
 
-LossFunc LossCreation::GetMAE() {
+LossFunc LossCreation::getMAE() {
     return {&MAE, &MAE_der, "MAE"};
 }
 
-LossFunc LossCreation::GetCrossEntropy() {
+LossFunc LossCreation::getCrossEntropy() {
     return {&CrossEntropy, &CrossEntropy_der, "CrossEntropy"};
 }
 
 LossFunc LossCreation::create(std::string type) {
-    if (type == "MSE") return GetMSE();
-    if (type == "MAE") return GetMAE();
-    if (type == "CrossEntropy") return GetCrossEntropy();
+    if (type == "MSE") return getMSE();
+    if (type == "MAE") return getMAE();
+    if (type == "CrossEntropy") return getCrossEntropy();
     else std::cerr << "Неизвестный тип активационной функции: " + type;
     return {};
 }

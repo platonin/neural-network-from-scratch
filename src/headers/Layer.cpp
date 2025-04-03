@@ -2,7 +2,7 @@
 
 namespace NeuralNetwork {
 
-Eigen::MatrixXd Layer::initialize_weights_xavier_normal() {
+Eigen::MatrixXd Layer::initializeWeightsXavierNormal() {
     double stddev = sqrt(2.0 / inputSize_);
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -22,47 +22,47 @@ Layer::Layer(int inputSize, int outputSize, ActivationFunc func)
 Layer::Layer(Eigen::MatrixXd W, Eigen::VectorXd b, ActivationFunc func) 
     : W_(W), b_(b), inputSize_(W.cols()), outputSize_(W.rows()), activationFunction_(func) {}
 
-Eigen::VectorXd Layer::CalculateZ(const Eigen::VectorXd& prev_x) const{
+Eigen::VectorXd Layer::calculateZ(const Eigen::VectorXd& prev_x) const{
     return W_ * prev_x + b_;
 }
 
-Eigen::VectorXd Layer::CalculateX(const Eigen::VectorXd& z) const {
+Eigen::VectorXd Layer::calculateX(const Eigen::VectorXd& z) const {
     return activationFunction_.activation(z);
 }
 
-Eigen::VectorXd Layer::Forward(const Eigen::VectorXd& prev_x) const {
-    return CalculateX(CalculateZ(prev_x));
+Eigen::VectorXd Layer::forward(const Eigen::VectorXd& prev_x) const {
+    return calculateX(calculateZ(prev_x));
 }
 
-void Layer::UpdateW(const Eigen::MatrixXd& gradW) {
+void Layer::updateW(const Eigen::MatrixXd& gradW) {
     W_ -= gradW;
 }
 
-void Layer::UpdateB(const Eigen::MatrixXd& gradB) {
+void Layer::updateB(const Eigen::MatrixXd& gradB) {
     b_ -= gradB;
 }
 
-const Eigen::MatrixXd& Layer::GetW() const {
+const Eigen::MatrixXd& Layer::getW() const {
     return W_;
 }
 
-const Eigen::VectorXd& Layer::GetB() const {
+const Eigen::VectorXd& Layer::getB() const {
     return b_;
 }
 
-Eigen::MatrixXd Layer::CalculateActivationDer(const Eigen::VectorXd& z) const {
+Eigen::MatrixXd Layer::calculateActivationDer(const Eigen::VectorXd& z) const {
     return activationFunction_.derivative(z);
 }
 
-int Layer::GetInputSize() const {
+int Layer::getInputSize() const {
     return inputSize_;
 }
 
-int Layer::GetOutputSize() const {
+int Layer::getOutputSize() const {
     return outputSize_;
 }
 
-std::string Layer::GetActivationType() const {
+std::string Layer::getActivationType() const {
     return activationFunction_.Type;
 }
 

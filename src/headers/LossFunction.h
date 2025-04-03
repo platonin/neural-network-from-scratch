@@ -24,9 +24,9 @@ private:
     static Eigen::VectorXd CrossEntropy_der(const Eigen::VectorXd& x, const Eigen::VectorXd& y);
 
 public:
-    static LossFunc GetMSE();
-    static LossFunc GetMAE();
-    static LossFunc GetCrossEntropy();
+    static LossFunc getMSE();
+    static LossFunc getMAE();
+    static LossFunc getCrossEntropy();
     static LossFunc create(std::string type);
 };
 

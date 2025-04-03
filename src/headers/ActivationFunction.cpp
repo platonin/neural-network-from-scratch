@@ -57,27 +57,27 @@ namespace NeuralNetwork {
         return diag - softmax * softmax.transpose();
     }
 
-    ActivationFunc ActivationCreation::GetReLU() {
+    ActivationFunc ActivationCreation::getReLU() {
         return ActivationFunc{&ReLU, &ReLU_der, "ReLU"};
     }
 
-    ActivationFunc ActivationCreation::GetSigmod() {
+    ActivationFunc ActivationCreation::getSigmod() {
         return ActivationFunc{&Sigmoid, &Sigmoid_der, "Sigmoid"};
     }
 
-    ActivationFunc ActivationCreation::GetSoftmax() {
+    ActivationFunc ActivationCreation::getSoftmax() {
         return ActivationFunc{&Softmax, &Softmax_der, "Softmax"};
     }
 
-    ActivationFunc ActivationCreation::GetLeakyReLU() {
+    ActivationFunc ActivationCreation::getLeakyReLU() {
         return ActivationFunc{&LeakyReLU, &LeakyReLU_der, "LeakyReLU"};
     }
 
     ActivationFunc ActivationCreation::create(std::string type) {
-        if (type == "ReLU") return GetReLU();
-        if (type == "Sigmoid") return GetSigmod();
-        if (type == "Softmax") return GetSoftmax();
-        if (type == "LeakyReLU") return GetLeakyReLU();
+        if (type == "ReLU") return getReLU();
+        if (type == "Sigmoid") return getSigmod();
+        if (type == "Softmax") return getSoftmax();
+        if (type == "LeakyReLU") return getLeakyReLU();
         else std::cerr << "Неизвестный тип активационной функции: " + type;
         return {};
     }

@@ -1,6 +1,7 @@
 build
 .DS_Store
 .vscode
+.clang-tidy
 scr/.DS_Store
 scr/main
 scr/main_check

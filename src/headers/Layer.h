@@ -16,27 +16,27 @@ private:
     Eigen::VectorXd b_;
     ActivationFunc activationFunction_;
 
-    Eigen::MatrixXd initialize_weights_xavier_normal();
+    Eigen::MatrixXd initializeWeightsXavierNormal();
 
 public:
     Layer();
     Layer(int inputSize, int outputSize, ActivationFunc func);
     Layer(Eigen::MatrixXd W, Eigen::VectorXd b, ActivationFunc func);
 
-    Eigen::VectorXd CalculateZ(const Eigen::VectorXd& prev_x) const;
-    Eigen::VectorXd CalculateX(const Eigen::VectorXd& z) const;
-    Eigen::VectorXd Forward(const Eigen::VectorXd& prev_x) const;
+    Eigen::VectorXd calculateZ(const Eigen::VectorXd& prev_x) const;
+    Eigen::VectorXd calculateX(const Eigen::VectorXd& z) const;
+    Eigen::VectorXd forward(const Eigen::VectorXd& prev_x) const;
 
-    void UpdateW(const Eigen::MatrixXd& gradW);
-    void UpdateB(const Eigen::MatrixXd& gradB);
+    void updateW(const Eigen::MatrixXd& gradW);
+    void updateB(const Eigen::MatrixXd& gradB);
 
-    const Eigen::MatrixXd& GetW() const;
-    const Eigen::VectorXd& GetB() const;
-    Eigen::MatrixXd CalculateActivationDer(const Eigen::VectorXd& z) const;
+    const Eigen::MatrixXd& getW() const;
+    const Eigen::VectorXd& getB() const;
+    Eigen::MatrixXd calculateActivationDer(const Eigen::VectorXd& z) const;
 
-    int GetInputSize() const;
-    int GetOutputSize() const;
-    std::string GetActivationType() const;
+    int getInputSize() const;
+    int getOutputSize() const;
+    std::string getActivationType() const;
 };
 
 }; // namespace NeuralNetwork

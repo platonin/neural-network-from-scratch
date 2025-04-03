@@ -13,7 +13,7 @@ namespace NeuralNetwork {
 struct Optimizer {
     double learningRate;
     double beta;
-    std::function<void(std::shared_ptr<Layer>&, layerOptimizerData&, double, double, layerGradData&)> update_weights;
+    std::function<void(std::shared_ptr<Layer>&, layerOptimizerData&, double, double, layerGradData&)> updateWeights;
     std::string Type;
 };
 
@@ -25,10 +25,10 @@ private:
     static void Adam(std::shared_ptr<Layer>& layer, layerOptimizerData& optimizerData, double learningRate, double beta, layerGradData& grads);
 
 public:
-    static Optimizer GetSGD(double learningRate);
-    static Optimizer GetMomentum(double learningRate, double beta);
-    static Optimizer GetRMSProp(double learningRate, double beta);
-    static Optimizer GetAdam(double learningRate, double beta);
+    static Optimizer getSGD(double learningRate);
+    static Optimizer getMomentum(double learningRate, double beta);
+    static Optimizer getRMSProp(double learningRate, double beta);
+    static Optimizer getAdam(double learningRate, double beta);
     static Optimizer create(std::string type, double learningRate, double beta);
 };
 

@@ -1,6 +1,7 @@
 #include "./headers/Net.h"
 #include "./headers/NetBuilder.h"
 #include "./headers/DataLoader.h"
+#include "./headers/DataProcessing.h"
 #include <iostream>
 #include <iomanip>
 #include <span>
@@ -8,18 +9,18 @@
 using namespace NeuralNetwork;
 
 int main() {
-    ActivationFunc sigmoid = ActivationCreation::GetSigmod();
-    ActivationFunc ReLU = ActivationCreation::GetReLU();
-    ActivationFunc softmax = ActivationCreation::GetSoftmax();
-    ActivationFunc leakyReLU = ActivationCreation::GetLeakyReLU();
+    ActivationFunc sigmoid = ActivationCreation::getSigmod();
+    ActivationFunc ReLU = ActivationCreation::getReLU();
+    ActivationFunc softmax = ActivationCreation::getSoftmax();
+    ActivationFunc leakyReLU = ActivationCreation::getLeakyReLU();
 
     NeuralNetwork::NetBuilder builder(784); // задаем входной размер при создании
 
-    builder.setLoss(LossCreation::GetCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
+    builder.setLoss(LossCreation::getCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
     builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
-    // builder.setOptimizer(OptimizerCreation::GetSGD(1)); // устанавливаем оптимизатор SGD
-    // builder.setOptimizer(OptimizerCreation::GetRMSProp(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
-    builder.setOptimizer(OptimizerCreation::GetAdam(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
+    // builder.setOptimizer(OptimizerCreation::getSGD(1)); // устанавливаем оптимизатор SGD
+    // builder.setOptimizer(OptimizerCreation::getRMSProp(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
+    builder.setOptimizer(OptimizerCreation::getAdam(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
 
     NeuralNetwork::Net net = builder.createNet();
 
@@ -30,8 +31,8 @@ int main() {
     auto train_images_matrixs = DataLoader::loadMNISTImages(train_images_path); //вектор матриц
     auto train_labels_int = DataLoader::loadMNISTIlabels(train_labels_path); //вектор интов
 
-    auto train_labels = DataLoader::labelsTransformToVector(train_labels_int); //вектор VectorXd длины 10
-    auto train_images = DataLoader::imagesTransformToVector(train_images_matrixs); // вектор VectorXd длины 784
+    auto train_labels = DataProcessing::labelsTransformToVector(train_labels_int); //вектор VectorXd длины 10
+    auto train_images = DataProcessing::imagesTransformToVector(train_images_matrixs); // вектор VectorXd длины 784
 
     int train_size = 6000; // размер тренировочной выборки
     // тренировочные выборки
@@ -46,7 +47,7 @@ int main() {
 
 
     // сохранение весов нейросети в файл temporary_weights.txt в переданной папке
-    net.SaveNet("../models data");
+    net.saveNet("../models data");
 
     return 0;
 }
