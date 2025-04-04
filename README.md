@@ -52,3 +52,42 @@ Net net = builder.createNet();
 
 - Пример обучения для распознавания цифр из MNIST можно посмотреть в `main.cpp`.
 - Пример загрузки нейросети из файла и проверки точности распознования цифр из MNIST можно в `main_check.cpp`.
+
+---
+
+## Результаты обучения
+
+Пока что самой удачной конфигурацией получилось добиться 97,14% процентов точности.
+Конфигурация:
+- Слой 1:
+  - входной размер: 784
+  - выходной размер: 128
+  - функция активации: sigmoid
+- Слой 2:
+  - входной размер: 128
+  - выходной размер: 64
+  - функция активации: sigmoid
+- Слой 1:
+  - входной размер: 64
+  - выходной размер: 10
+  - функция активации: softmax
+- функция потерь: cross-entropy
+- оптимизатор: adam
+
+Обучение:
+- размер батча: 128
+- количество эпох: 7
+- обучение происходило по всей выборке (60000 изображений)
+
+```cpp
+// Создание нейросети
+ActivationFunc softmax = ActivationCreation::getSoftmax();
+NeuralNetwork::NetBuilder builder(784);
+builder.setLoss(LossCreation::getCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
+builder.setLayers({{128, sigmoid}, {64, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
+builder.setOptimizer(OptimizerCreation::getAdam(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
+NeuralNetwork::Net net = builder.createNet(); 
+
+// Обучение
+net.train(X, Y, 7, 128);
+```
