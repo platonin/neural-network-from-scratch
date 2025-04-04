@@ -8,8 +8,8 @@
 using namespace NeuralNetwork;
 
 int main() {
-    // std::string path_to_weigths = "../models data/temporary_weights.txt";
-    std::string path_to_weigths = "../models data/weights_93_acc_momentum2.txt"; // файл с конфигурацией на 96% точности
+    std::string path_to_weigths = "../models data/temporary_weights.txt"; // последние веса нейросети
+    // std::string path_to_weigths = "../models data/adam_97,14.txt"; // файл с конфигурацией на 97,14% точности
 
     // загрузка весов нейросети из файла
     NeuralNetwork::Net net = NeuralNetwork::NetBuilder::loadNet(path_to_weigths);
@@ -30,7 +30,7 @@ int main() {
 
     std::cout << "Предсказано: \n";
     for (int i = 0; i < 30; ++i) {
-        std::cout << net.predict(test_images[i]) << " ";
+        std::cout << net.predictNumber(test_images[i]) << " ";
     }
     std::cout << "\n";
 

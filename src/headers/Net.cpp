@@ -7,14 +7,14 @@ Net::Net() : loss_(), numbersOfLayers_(0), layers_(), optimizer_(OptimizerCreati
 void Net::saveNet(const string& path) const {
     string fileName = path + "/temporary_weights.txt";
     ofstream file(fileName);
-    file << *this; //это правильно?
+    file << *this;
     file.close();
 }
 
 void Net::saveNet(const string& path, int num) const {
     string fileName = path + "/weights_" + to_string(num) + ".txt";
     ofstream file(fileName);
-    file << *this; //это правильно?
+    file << *this;
     file.close();
 }
 
@@ -41,16 +41,12 @@ vector<vector<layerGradData>> Net::backPropagation(span<VectorXd> X, const vecto
     int batchSize = grads_L_x.size();
     vector<vector<layerGradData>> layers_back_data(batchSize, vector<layerGradData>(numbersOfLayers_));
     for (int i = 0; i < batchSize; ++i) {
-        // VectorXd grad_L_x_i = grads_L_x[i];
         int L = numbersOfLayers_-1;
 
-        // layers_back_data[i][L].grad_b = layers_[L]->calculateActivationDer(layers_forward_data[i][L].z).cwiseProduct(grads_L_x[i]);
         layers_back_data[i][L].grad_b = layers_[L]->calculateActivationDer(layers_forward_data[i][L].z) * grads_L_x[i]; // стало matrix[KxK] * matrix[Kx1] = matrix[Kx1]
         layers_back_data[i][L].grad_W = layers_back_data[i][L].grad_b * layers_forward_data[i][L-1].x.transpose();
-        // cout << "ok ok\n"; 
 
         for (int l = L-1; l > 0; --l) {
-            // layers_back_data[i][l].grad_b = layers_[l]->calculateActivationDer(layers_forward_data[i][l].z).cwiseProduct(layers_[l+1]->getW().transpose() * layers_back_data[i][l+1].grad_b);
             layers_back_data[i][l].grad_b = layers_[l]->calculateActivationDer(layers_forward_data[i][l].z) * layers_[l+1]->getW().transpose() * layers_back_data[i][l+1].grad_b;
             layers_back_data[i][l].grad_W = layers_back_data[i][l].grad_b * layers_forward_data[i][l-1].x.transpose();
         }
@@ -102,7 +98,7 @@ void Net::shuffleTrainData(span<VectorXd> X, span<VectorXd> Y) {
 }
 
 void Net::train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize) {
-    int numberOfBatch = X.size()/batchSize; // надо сделать, чтобы если нацело не делится, то захватывался последний неполноценный батч
+    int numberOfBatch = X.size()/batchSize;
     for (int numberEpoch = 1; numberEpoch <= epochs; ++numberEpoch) {
         Logger::printEpoch(numberEpoch);
         double metric = 0;
@@ -131,7 +127,7 @@ void Net::train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize) {
 
             // для вывода статистики
             for (int num_batch = 0; num_batch < batchSize; ++num_batch) {
-                metric += (1.0/X.size()) * loss_.lossFunction(layers_forward_data_batch_i[num_batch][2].x, batch_y_i[num_batch]);
+                metric += (1.0/X.size()) * loss_.lossFunction(layers_forward_data_batch_i[num_batch][numbersOfLayers_-1].x, batch_y_i[num_batch]);
             }
 
             vector<vector<layerGradData>> gradients_for_batch = backPropagation(batch_x_i, grads_L_x, layers_forward_data_batch_i);
@@ -140,15 +136,15 @@ void Net::train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize) {
 
             Logger::printProgress(round((double)i/(numberOfBatch-1) * 100));
         }
-        
         Logger::printMetrics(this, X, Y, metric);
+        saveNet("../models data", 1); // сохраняем веса после каждой эпохи
     }
     
     Logger::printFinish(this, X, Y);
 }
 
-//только для чисел из mnist пока (а так в общем виде надо возвращать вектор выходной длины)
-int Net::predict(const VectorXd& x0) const {
+//возвращает число, значение нейрона на котором наибольшее (а так в общем виде надо возвращать вектор выходной длины, для этого forward есть)
+int Net::predictNumber(const VectorXd& x0) const {
     VectorXd x_i = x0;
     VectorXd z_i;
     for (int l = 0; l < numbersOfLayers_; ++l) {
@@ -178,7 +174,7 @@ VectorXd Net::forward(const VectorXd& x) const {
     return x_i;
 }
 
-//тоже пока только для mnist
+//только для чисел, принимает массив входных векторов и соответствующих правильынх выходных чисел
 double Net::accuracity(span<VectorXd> X, span<int> Y) const {
     if (X.size() != Y.size()) {
         cout << "Некорректные данные\n";
@@ -186,7 +182,7 @@ double Net::accuracity(span<VectorXd> X, span<int> Y) const {
     }
     int count = 0;
     for (int i = 0; i < X.size(); ++i) {
-        if (predict(X[i]) == Y[i]) {
+        if (predictNumber(X[i]) == Y[i]) {
             count++;
         }
     }
@@ -211,7 +207,7 @@ double Net::accuracity(span<VectorXd> X, span<VectorXd> Y) const {
             }
         }
         
-        if (predict(X[i]) == fact_val) {
+        if (predictNumber(X[i]) == fact_val) {
             count++;
         }
     }
@@ -246,7 +242,7 @@ istream& operator>>(istream& is, Net& net) {
         string activation;
         is >> outSize >> inSize >> activation;
 
-        MatrixXd W(outSize, inSize); // с размерами все норм?
+        MatrixXd W(outSize, inSize);
         for (int i = 0; i < outSize; ++i) {
             for (int j = 0; j < inSize; ++j) {
                 string t;
@@ -256,7 +252,7 @@ istream& operator>>(istream& is, Net& net) {
         }
         
         is >> outSize >> inSize;
-        VectorXd b(outSize); // с размерами все норм?
+        VectorXd b(outSize);
         for (int i = 0; i < outSize; ++i)
             is >> b(i);
 

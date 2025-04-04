@@ -9,6 +9,7 @@
 using namespace NeuralNetwork;
 
 int main() {
+
     ActivationFunc sigmoid = ActivationCreation::getSigmod();
     ActivationFunc ReLU = ActivationCreation::getReLU();
     ActivationFunc softmax = ActivationCreation::getSoftmax();
@@ -17,12 +18,13 @@ int main() {
     NeuralNetwork::NetBuilder builder(784); // задаем входной размер при создании
 
     builder.setLoss(LossCreation::getCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
-    builder.setLayers({{30, ReLU}, {20, ReLU}, {10, softmax}}); // добавляем слои с функциями активации
-    // builder.setOptimizer(OptimizerCreation::getSGD(1)); // устанавливаем оптимизатор SGD
-    // builder.setOptimizer(OptimizerCreation::getRMSProp(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
+    builder.setLayers({{128, sigmoid}, {64, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
     builder.setOptimizer(OptimizerCreation::getAdam(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
 
-    NeuralNetwork::Net net = builder.createNet();
+    NeuralNetwork::Net net = builder.createNet(); 
+
+    // можно загрузить уже обученную нейросеть из файла, чтобы дообучить например
+    // NeuralNetwork::Net net = NeuralNetwork::NetBuilder::loadNet("../models data/adam_97,14.txt");
 
     std::string train_images_path = "../train data/MNIST numbers/train-images.idx3-ubyte";
     std::string train_labels_path = "../train data/MNIST numbers/train-labels.idx1-ubyte";
@@ -34,17 +36,12 @@ int main() {
     auto train_labels = DataProcessing::labelsTransformToVector(train_labels_int); //вектор VectorXd длины 10
     auto train_images = DataProcessing::imagesTransformToVector(train_images_matrixs); // вектор VectorXd длины 784
 
-    int train_size = 6000; // размер тренировочной выборки
+    int train_size = 60000; // размер тренировочной выборки
     // тренировочные выборки
     std::vector<Eigen::VectorXd> X(train_images.begin(), train_images.begin() + train_size);
     std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
 
-    auto start_time = std::chrono::high_resolution_clock::now();
-    net.train(X, Y, 4, 60);
-    auto end_time = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed_time = end_time - start_time;
-    std::cout << "Training time: " << elapsed_time.count() << " seconds" << std::endl;
-
+    net.train(X, Y, 7, 128);
 
     // сохранение весов нейросети в файл temporary_weights.txt в переданной папке
     net.saveNet("../models data");

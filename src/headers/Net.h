@@ -53,7 +53,7 @@ public:
 
     void train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize);
 
-    int predict(const VectorXd& x0) const;
+    int predictNumber(const VectorXd& x0) const;
     VectorXd forward(const VectorXd& x) const;
 
     double accuracity(span<VectorXd> X, span<int> Y) const;
