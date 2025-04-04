@@ -18,7 +18,7 @@ int main() {
     NeuralNetwork::NetBuilder builder(784); // задаем входной размер при создании
 
     builder.setLoss(LossCreation::getCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
-    builder.setLayers({{128, sigmoid}, {64, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
+    builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
     builder.setOptimizer(OptimizerCreation::getAdam(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
 
     NeuralNetwork::Net net = builder.createNet(); 
@@ -36,12 +36,12 @@ int main() {
     auto train_labels = DataProcessing::labelsTransformToVector(train_labels_int); //вектор VectorXd длины 10
     auto train_images = DataProcessing::imagesTransformToVector(train_images_matrixs); // вектор VectorXd длины 784
 
-    int train_size = 60000; // размер тренировочной выборки
+    int train_size = 6000; // размер тренировочной выборки
     // тренировочные выборки
     std::vector<Eigen::VectorXd> X(train_images.begin(), train_images.begin() + train_size);
     std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
 
-    net.train(X, Y, 7, 128);
+    net.train(X, Y, 2, 10);
 
     // сохранение весов нейросети в файл temporary_weights.txt в переданной папке
     net.saveNet("../models data");

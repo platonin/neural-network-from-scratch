@@ -1,3 +1,6 @@
+#ifndef DATAPROCESSING_CPP
+#define DATAPROCESSING_CPP
+
 #include "DataProcessing.h"
 
 namespace NeuralNetwork {
@@ -25,3 +28,5 @@ namespace NeuralNetwork {
 
     }; // namespace DataProcessing
 }; // namespace NeuralNetwork
+
+#endif

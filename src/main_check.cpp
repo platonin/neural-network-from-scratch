@@ -2,6 +2,7 @@
 #include "./headers/NetBuilder.h"
 #include "./headers/DataLoader.h"
 #include "./headers/DataProcessing.h"
+#include "./headers/Visualization.h"
 #include <iostream>
 #include <iomanip>
 
@@ -21,20 +22,33 @@ int main() {
 
     auto test_images = DataProcessing::imagesTransformToVector(test_images_matrixs); // вектор VectorXd длины 784
 
-    std::cout << "Должно быть (первые 30 чисел из выборки): \n";
-    for (int i = 0; i < 30; ++i) {
-        std::cout << test_labels_int[i] << " ";
-    }
+    // std::cout << "Должно быть (первые 30 чисел из выборки): \n";
+    // for (int i = 0; i < 20; ++i) {
+    //     std::cout << test_labels_int[i] << " ";
+    // }
+    // std::cout << "\n";
+    // std::cout << "Предсказано: \n";
+    // for (int i = 0; i < 20; ++i) {
+    //     std::cout << net.predictNumber(test_images[i]) << " ";
+    // }
+    // std::cout << "\n";
+    // std::cout << "Точность: " << net.accuracity(test_images, test_labels_int);
+
+    int start_index = 10;
+    int test_size = 10; 
     
-    std::cout << "\n";
-
-    std::cout << "Предсказано: \n";
-    for (int i = 0; i < 30; ++i) {
-        std::cout << net.predictNumber(test_images[i]) << " ";
+    // картинки из выборки для вывода через opencv
+    auto images_for_show = std::vector<Eigen::MatrixXd>(test_images_matrixs.begin() + start_index, test_images_matrixs.begin() + start_index + test_size);
+    // предсказанные цифры
+    auto num_predicts = std::vector<int>(0);
+    for (int i = start_index; i < start_index + test_size; ++i) {
+        num_predicts.push_back(net.predictNumber(test_images[i]));
     }
-    std::cout << "\n";
+    // цифры, которые должны быть
+    auto num_labels = std::vector<int>(test_labels_int.begin() + start_index, test_labels_int.begin() + start_index + test_size);
 
-    std::cout << "Точность: " << net.accuracity(test_images, test_labels_int);
+    // Visualization::showImagesRow(images_for_show); // вывод изображения через opencv
+    Visualization::showImagesWithTwoNumbers(images_for_show, num_predicts, num_labels); // вывод изображения через opencv с подписями
 
     return 0;
 }
