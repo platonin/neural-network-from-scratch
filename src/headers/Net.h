@@ -46,18 +46,12 @@ namespace NN {
         friend ostream& operator<<(ostream& os, const Net& net);
         friend istream& operator>>(istream& is, Net& net);
 
-        
-
         void saveNet(const string& path) const;
         void saveNet(const string& path, int num) const;
 
         void train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize);
 
-        // int predictNumber(const VectorXd& x0) const;
         VectorXd forward(const VectorXd& x) const;
-
-        // double accuracity(span<VectorXd> X, span<int> Y) const;
-        // double accuracity(span<VectorXd> X, span<VectorXd> Y) const;
     };
 
     ostream& operator<<(ostream& os, const Net& net);
