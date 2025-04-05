@@ -3,7 +3,7 @@
 
 #include "DataProcessing.h"
 
-namespace NeuralNetwork {
+namespace NN {
     namespace DataProcessing {
         using namespace std;
         using namespace Eigen;
@@ -27,6 +27,6 @@ namespace NeuralNetwork {
         }
 
     }; // namespace DataProcessing
-}; // namespace NeuralNetwork
+}; // namespace NN
 
 #endif

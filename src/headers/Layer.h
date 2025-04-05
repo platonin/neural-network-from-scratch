@@ -6,7 +6,7 @@
 #include <cmath>
 #include <Eigen/Dense>
 
-namespace NeuralNetwork {
+namespace NN {
 
 class Layer {
 private:
@@ -39,6 +39,6 @@ public:
     std::string getActivationType() const;
 };
 
-}; // namespace NeuralNetwork
+}; // namespace NN
 
 #endif

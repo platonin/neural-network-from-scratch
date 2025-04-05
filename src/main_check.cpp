@@ -3,17 +3,18 @@
 #include "./headers/DataLoader.h"
 #include "./headers/DataProcessing.h"
 #include "./headers/Visualization.h"
+#include "./headers/NumberUtils.h"
 #include <iostream>
 #include <iomanip>
 
-using namespace NeuralNetwork;
+using namespace NN;
 
 int main() {
-    std::string path_to_weigths = "../models data/temporary_weights.txt"; // последние веса нейросети
-    // std::string path_to_weigths = "../models data/adam_97,14.txt"; // файл с конфигурацией на 97,14% точности
+    // std::string path_to_weigths = "../models data/temporary_weights.txt"; // последние веса нейросети
+    std::string path_to_weigths = "../models data/adam_97,14.txt"; // файл с конфигурацией на 97,14% точности
 
     // загрузка весов нейросети из файла
-    NeuralNetwork::Net net = NeuralNetwork::NetBuilder::loadNet(path_to_weigths);
+    NN::Net net = NN::NetBuilder::loadNet(path_to_weigths);
 
     std::string train_images_path = "../train data/MNIST numbers/t10k-images.idx3-ubyte";
     std::string train_labels_path = "../train data/MNIST numbers/t10k-labels.idx1-ubyte";
@@ -34,7 +35,7 @@ int main() {
     // std::cout << "\n";
     // std::cout << "Точность: " << net.accuracity(test_images, test_labels_int);
 
-    int start_index = 10;
+    int start_index = 0;
     int test_size = 10; 
     
     // картинки из выборки для вывода через opencv
@@ -42,13 +43,14 @@ int main() {
     // предсказанные цифры
     auto num_predicts = std::vector<int>(0);
     for (int i = start_index; i < start_index + test_size; ++i) {
-        num_predicts.push_back(net.predictNumber(test_images[i]));
+        num_predicts.push_back(NumberUtils::predictNumber(test_images[i], net));
     }
     // цифры, которые должны быть
     auto num_labels = std::vector<int>(test_labels_int.begin() + start_index, test_labels_int.begin() + start_index + test_size);
 
     // Visualization::showImagesRow(images_for_show); // вывод изображения через opencv
-    Visualization::showImagesWithTwoNumbers(images_for_show, num_predicts, num_labels); // вывод изображения через opencv с подписями
+    // Visualization::showImagesWithTwoNumbers(images_for_show, num_predicts, num_labels); // вывод изображения через opencv с подписями
+    Visualization::showImagesWithLabels(images_for_show, num_predicts); // вывод изображения через opencv с подписями
 
     return 0;
 }

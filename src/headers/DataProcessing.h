@@ -4,7 +4,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-namespace NeuralNetwork {
+namespace NN {
 
     namespace DataProcessing {
         using namespace std;

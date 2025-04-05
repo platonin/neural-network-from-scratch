@@ -3,7 +3,7 @@
 
 #include "Net.h"
 
-namespace NeuralNetwork {
+namespace NN {
 
 struct SetLayerParams {
     int layerSize;

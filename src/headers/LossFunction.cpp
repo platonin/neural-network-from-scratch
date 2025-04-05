@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-namespace NeuralNetwork {
+namespace NN {
 
 double LossCreation::MSE(const Eigen::VectorXd& x, const Eigen::VectorXd& y) {
     return 0.5 * (x - y).squaredNorm();
@@ -56,4 +56,4 @@ LossFunc LossCreation::create(std::string type) {
     return {};
 }
 
-}; // namespace NeuralNetwork
+}; // namespace NN

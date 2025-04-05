@@ -6,6 +6,7 @@
 #include "NetTypes.h"
 #include "ActivationFunction.h"
 #include "Optimizer.h"
+#include "Logger.h"
 
 #include <iomanip> // это для вывода, надо убрать потом будет 
 #include <memory>
@@ -21,7 +22,7 @@
 
 class NetBuilder;
 
-namespace NeuralNetwork {
+namespace NN {
 
 using namespace std;
 using namespace Eigen;
@@ -53,22 +54,22 @@ public:
 
     void train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize);
 
-    int predictNumber(const VectorXd& x0) const;
+    // int predictNumber(const VectorXd& x0) const;
     VectorXd forward(const VectorXd& x) const;
 
-    double accuracity(span<VectorXd> X, span<int> Y) const;
-    double accuracity(span<VectorXd> X, span<VectorXd> Y) const;
+    // double accuracity(span<VectorXd> X, span<int> Y) const;
+    // double accuracity(span<VectorXd> X, span<VectorXd> Y) const;
 };
 
 ostream& operator<<(ostream& os, const Net& net);
 istream& operator>>(istream& is, Net& net);
-
-namespace Logger {
-    static void printProgress(int percent);
-    static void printMetrics(Net* net, span<VectorXd> X, span<VectorXd> Y, double metric);
-    static void printFinish(Net* net, span<VectorXd> X, span<VectorXd> Y);
-    static void printEpoch(int num);
-};
+namespace Logger{};
+// namespace Logger {
+//     void printProgress(int percent);
+//     void printMetrics(Net* net, span<VectorXd> X, span<VectorXd> Y, double metric);
+//     void printFinish(Net* net, span<VectorXd> X, span<VectorXd> Y);
+//     void printEpoch(int num);
+// };
 
 }; // namespace NeuralNetwork
 

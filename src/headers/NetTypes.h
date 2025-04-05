@@ -4,7 +4,7 @@
 #include <Eigen/Dense>
 #include "ActivationFunction.h"
 
-namespace NeuralNetwork {
+namespace NN {
 
 struct forwardData {
     Eigen::VectorXd z;

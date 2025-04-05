@@ -1,7 +1,7 @@
 #include "NetBuilder.h"
 #include <iostream>
 
-namespace NeuralNetwork {
+namespace NN {
 
 NetBuilder::NetBuilder(int inputSize) : inputSize_(inputSize), netIsReadyToCreate_(3, false) {}
 

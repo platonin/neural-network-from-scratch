@@ -1,6 +1,6 @@
 #include "Visualization.h"
 
-namespace NeuralNetwork {
+namespace NN {
     namespace Visualization {
         void showImage(const MatrixXd &image) {
             MatrixXd mt = image.transpose();

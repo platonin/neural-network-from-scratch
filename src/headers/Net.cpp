@@ -1,6 +1,7 @@
 #include "Net.h"
+#include "Logger.h"
 
-namespace NeuralNetwork {
+namespace NN {
 
 Net::Net() : loss_(), numbersOfLayers_(0), layers_(), optimizer_(OptimizerCreation::getSGD(1)) {}
 
@@ -136,34 +137,34 @@ void Net::train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize) {
 
             Logger::printProgress(round((double)i/(numberOfBatch-1) * 100));
         }
-        Logger::printMetrics(this, X, Y, metric);
+        // Logger::printMetrics(*this, X, Y, metric);
+        Logger::printMetrics(*this, X, Y, metric);
         saveNet("../models data", 1); // сохраняем веса после каждой эпохи
     }
-    
-    Logger::printFinish(this, X, Y);
+    Logger::printFinish(*this, X, Y);
 }
 
 //возвращает число, значение нейрона на котором наибольшее (а так в общем виде надо возвращать вектор выходной длины, для этого forward есть)
-int Net::predictNumber(const VectorXd& x0) const {
-    VectorXd x_i = x0;
-    VectorXd z_i;
-    for (int l = 0; l < numbersOfLayers_; ++l) {
-        layers_[0];
-        z_i = layers_[l]->calculateZ(x_i);
-        x_i = layers_[l]->calculateX(z_i);
-    }
+// int Net::predictNumber(const VectorXd& x0) const {
+//     VectorXd x_i = x0;
+//     VectorXd z_i;
+//     for (int l = 0; l < numbersOfLayers_; ++l) {
+//         layers_[0];
+//         z_i = layers_[l]->calculateZ(x_i);
+//         x_i = layers_[l]->calculateX(z_i);
+//     }
     
-    int mx_ind = 0;
-    double mx = 0;
+//     int mx_ind = 0;
+//     double mx = 0;
 
-    for (int i = 0; i < x_i.size(); ++i) {
-        if (x_i(i) > mx) {
-            mx = x_i(i);
-            mx_ind = i;
-        }
-    }
-    return mx_ind;
-}
+//     for (int i = 0; i < x_i.size(); ++i) {
+//         if (x_i(i) > mx) {
+//             mx = x_i(i);
+//             mx_ind = i;
+//         }
+//     }
+//     return mx_ind;
+// }
 
 VectorXd Net::forward(const VectorXd& x) const {
     VectorXd x_i = x;
@@ -175,44 +176,44 @@ VectorXd Net::forward(const VectorXd& x) const {
 }
 
 //только для чисел, принимает массив входных векторов и соответствующих правильынх выходных чисел
-double Net::accuracity(span<VectorXd> X, span<int> Y) const {
-    if (X.size() != Y.size()) {
-        cout << "Некорректные данные\n";
-        return -1;
-    }
-    int count = 0;
-    for (int i = 0; i < X.size(); ++i) {
-        if (predictNumber(X[i]) == Y[i]) {
-            count++;
-        }
-    }
-    return ((double)count) / X.size();
-}
+// double Net::accuracity(span<VectorXd> X, span<int> Y) const {
+//     if (X.size() != Y.size()) {
+//         cout << "Некорректные данные\n";
+//         return -1;
+//     }
+//     int count = 0;
+//     for (int i = 0; i < X.size(); ++i) {
+//         if (predictNumber(X[i]) == Y[i]) {
+//             count++;
+//         }
+//     }
+//     return ((double)count) / X.size();
+// }
 
 // принимает массив входных векторов и соответствующих правильынх выходных векторов
-double Net::accuracity(span<VectorXd> X, span<VectorXd> Y) const {
-    if (X.size() != Y.size()) {
-        cout << "Некорректные данные\n";
-        return -1;
-    }
+// double Net::accuracity(span<VectorXd> X, span<VectorXd> Y) const {
+//     if (X.size() != Y.size()) {
+//         cout << "Некорректные данные\n";
+//         return -1;
+//     }
 
-    int count = 0;
-    for (int i = 0; i < X.size(); ++i) {
-        double mx = Y[i].maxCoeff();
-        int fact_val = 0;
-        for (int j = 0; j < Y[i].size(); ++j) {
-            if(Y[i](j) == mx) {
-                fact_val = j;
-                break;
-            }
-        }
+//     int count = 0;
+//     for (int i = 0; i < X.size(); ++i) {
+//         double mx = Y[i].maxCoeff();
+//         int fact_val = 0;
+//         for (int j = 0; j < Y[i].size(); ++j) {
+//             if(Y[i](j) == mx) {
+//                 fact_val = j;
+//                 break;
+//             }
+//         }
         
-        if (predictNumber(X[i]) == fact_val) {
-            count++;
-        }
-    }
-    return ((double)count) / X.size();
-}
+//         if (predictNumber(X[i]) == fact_val) {
+//             count++;
+//         }
+//     }
+//     return ((double)count) / X.size();
+// }
 
 ostream& operator<<(ostream& os, const Net& net) {
     os << to_string(net.numbersOfLayers_) << " " << net.loss_.Type << "\n";
@@ -267,25 +268,26 @@ istream& operator>>(istream& is, Net& net) {
     return is;
 }
 
-static void Logger::printProgress(int percent) {
-    cout << "\r";
-    for (int i = 0; i < percent/2; ++i) cout << "█";
-    for (int i = percent/2; i < 50; ++i) cout << "░";
-    cout << " " << percent << "%";
-    cout .flush();
-}
+// void Logger::printProgress(int percent) {
+//     cout << "\r";
+//     for (int i = 0; i < percent/2; ++i) cout << "█";
+//     for (int i = percent/2; i < 50; ++i) cout << "░";
+//     cout << " " << percent << "%";
+//     cout .flush();
+// }
 
-void Logger::printMetrics(Net* net, span<VectorXd> X, span<VectorXd> Y, double metric) {
-    cout << "\nТочность: " << net->accuracity(X, Y) * 100.0 << "% ";
-    cout << "Ошибка: " << metric << "\n";
-}
+// void Logger::printMetrics(Net* net, span<VectorXd> X, span<VectorXd> Y, double metric) {
+//     cout << "\nТочность: " << net->accuracity(X, Y) * 100.0 << "% ";
+//     cout << "\nТочность: " << NumberUtils::accuracityForNumbers(X, Y) * 100.0 << "% ";
+//     cout << "Ошибка: " << metric << "\n";
+// }
 
-void Logger::printFinish(Net* net, span<VectorXd> X, span<VectorXd> Y) {
-    cout << "\nОбучение завершено. Точность на тренировочной выборке: " << net->accuracity(X, Y) * 100.0 << "%\n";
-}
+// void Logger::printFinish(Net* net, span<VectorXd> X, span<VectorXd> Y) {
+//     cout << "\nОбучение завершено. Точность на тренировочной выборке: " << net->accuracity(X, Y) * 100.0 << "%\n";
+// }
 
-void Logger::printEpoch(int num) {
-    cout << "\nЭпоха номер: " << num << "\n";
-}
+// void Logger::printEpoch(int num) {
+//     cout << "\nЭпоха номер: " << num << "\n";
+// }
 
 }; // namespace NeuralNetwork

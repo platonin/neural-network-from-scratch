@@ -5,7 +5,7 @@
 #include <Eigen/Dense>
 #include <vector>
 
-namespace NeuralNetwork {
+namespace NN {
     namespace Visualization {
         using namespace Eigen;
         using namespace std;

@@ -8,7 +8,7 @@
 #include "Layer.h"
 #include "NetTypes.h"
 
-namespace NeuralNetwork {
+namespace NN {
 
 struct Optimizer {
     double learningRate;

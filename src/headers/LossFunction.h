@@ -4,7 +4,7 @@
 #include "Layer.h"
 #include "ActivationFunction.h"
 
-namespace NeuralNetwork {
+namespace NN {
 
 struct LossFunc {
     std::function<double(const Eigen::VectorXd&, const Eigen::VectorXd&)> lossFunction;
@@ -30,6 +30,6 @@ public:
     static LossFunc create(std::string type);
 };
 
-}; // namespace NeuralNetwork
+}; // namespace NN
 
 #endif

@@ -1,6 +1,6 @@
 #include "Layer.h"
 
-namespace NeuralNetwork {
+namespace NN {
 
 Eigen::MatrixXd Layer::initializeWeightsXavierNormal() {
     double stddev = sqrt(2.0 / inputSize_);
@@ -66,4 +66,4 @@ std::string Layer::getActivationType() const {
     return activationFunction_.Type;
 }
 
-}; // namespace NeuralNetwork
+}; // namespace NN

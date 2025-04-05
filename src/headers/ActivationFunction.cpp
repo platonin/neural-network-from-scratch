@@ -1,6 +1,6 @@
 #include "ActivationFunction.h"
 
-namespace NeuralNetwork {
+namespace NN {
 
     Eigen::VectorXd ActivationCreation::ReLU(const Eigen::VectorXd& vec) {
         Eigen::VectorXd result(vec.size());
@@ -82,4 +82,4 @@ namespace NeuralNetwork {
         else throw std::invalid_argument("Неизвестный тип активационной функции: " + type);
     }
 
-}; // namespace NeuralNetwork
+}; // namespace NN

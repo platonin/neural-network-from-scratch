@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <span>
 
-using namespace NeuralNetwork;
+using namespace NN;
 
 int main() {
 
@@ -15,16 +15,16 @@ int main() {
     ActivationFunc softmax = ActivationCreation::getSoftmax();
     ActivationFunc leakyReLU = ActivationCreation::getLeakyReLU();
 
-    NeuralNetwork::NetBuilder builder(784); // задаем входной размер при создании
+    NN::NetBuilder builder(784); // задаем входной размер при создании
 
     builder.setLoss(LossCreation::getCrossEntropy()); // устанавливаем функцию ошибки CrossEntropy
     builder.setLayers({{30, sigmoid}, {20, sigmoid}, {10, softmax}}); // добавляем слои с функциями активации
     builder.setOptimizer(OptimizerCreation::getAdam(0.01, 0.9)); // устанавливаем оптимизатор SGD + Momentum
 
-    NeuralNetwork::Net net = builder.createNet(); 
+    NN::Net net = builder.createNet(); 
 
     // можно загрузить уже обученную нейросеть из файла, чтобы дообучить например
-    // NeuralNetwork::Net net = NeuralNetwork::NetBuilder::loadNet("../models data/adam_97,14.txt");
+    // NN::Net net = NN::NetBuilder::loadNet("../models data/adam_97,14.txt");
 
     std::string train_images_path = "../train data/MNIST numbers/train-images.idx3-ubyte";
     std::string train_labels_path = "../train data/MNIST numbers/train-labels.idx1-ubyte";
@@ -41,7 +41,7 @@ int main() {
     std::vector<Eigen::VectorXd> X(train_images.begin(), train_images.begin() + train_size);
     std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
 
-    net.train(X, Y, 2, 10);
+    net.train(X, Y, 0, 10);
 
     // сохранение весов нейросети в файл temporary_weights.txt в переданной папке
     net.saveNet("../models data");

@@ -6,7 +6,7 @@
 #include <Eigen/Dense>
 #include <functional>
 
-namespace NeuralNetwork {
+namespace NN {
 
     struct ActivationFunc {
         std::function<Eigen::VectorXd(const Eigen::VectorXd&)> activation;

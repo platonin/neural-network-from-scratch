@@ -12,7 +12,7 @@
 
 class Net;
 
-namespace NeuralNetwork {
+namespace NN {
 
     namespace DataLoader {
         using namespace std;

@@ -1,6 +1,6 @@
 #include "Optimizer.h"
 
-namespace NeuralNetwork {
+namespace NN {
 
 void OptimizerCreation::SGD(std::shared_ptr<Layer>& layer, layerOptimizerData& optimizerData, double learningRate, double beta, layerGradData& grads) {
     layer->updateW(learningRate * grads.grad_W);

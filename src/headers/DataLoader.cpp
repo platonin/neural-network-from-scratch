@@ -1,6 +1,6 @@
 #include "DataLoader.h"
 
-namespace NeuralNetwork {
+namespace NN {
 
     namespace DataLoader {
         using namespace std;
