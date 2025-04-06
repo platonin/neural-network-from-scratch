@@ -47,7 +47,7 @@ namespace NN {
         friend istream& operator>>(istream& is, Net& net);
 
         void saveNet(const string& path) const;
-        void saveNet(const string& path, int num) const;
+        void saveNet(const string& path, const string& name) const;
 
         void train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize);
 

@@ -9,6 +9,13 @@ namespace NN {
             img.convertTo(img8bit, CV_8U, 255);
             imshow("MNIST Image", img8bit);
             waitKey(0); 
+            // waitKey(1);
+
+            // std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            // std::cout << "Нажмите Enter в консоли, чтобы продолжить..." << std::endl;
+    
+            // std::cin.get();  
+            // destroyWindow("MNIST Image");
         }
 
         void showImagesRow(const vector<MatrixXd> &images) {

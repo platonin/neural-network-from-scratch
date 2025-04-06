@@ -12,8 +12,8 @@ namespace NN {
         file.close();
     }
 
-    void Net::saveNet(const string& path, int num) const {
-        string fileName = path + "/weights_" + to_string(num) + ".txt";
+    void Net::saveNet(const string& path, const string& name) const {
+        string fileName = path + "/" + name + ".txt";
         ofstream file(fileName);
         file << *this;
         file.close();
@@ -137,9 +137,8 @@ namespace NN {
 
                 Logger::printProgress(round((double)i/(numberOfBatch-1) * 100));
             }
-            // Logger::printMetrics(*this, X, Y, metric);
             Logger::printMetrics(*this, X, Y, metric);
-            saveNet("../models data", 1); // сохраняем веса после каждой эпохи
+            // saveNet("../models data", "last_epoch"); // сохраняем веса после каждой эпохи
         }
         Logger::printFinish(*this, X, Y);
     }

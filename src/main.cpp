@@ -39,9 +39,9 @@ int main() {
     int train_size = 6000; // размер тренировочной выборки
     // тренировочные выборки
     std::vector<Eigen::VectorXd> X(train_images.begin(), train_images.begin() + train_size);
-    std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);
+    std::vector<Eigen::VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size-10);
 
-    net.train(X, Y, 0, 10);
+    net.train(X, Y, 4, 10);
 
     // сохранение весов нейросети в файл temporary_weights.txt в переданной папке
     net.saveNet("../models data");
