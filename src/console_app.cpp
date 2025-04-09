@@ -45,7 +45,7 @@ void loadAndPredict() {
 
         auto result = NN::NumberUtils::predictNumber(test_images[index], net);
         cout << "Предсказание: " << result << "\n";
-        NN::Visualization::showImage(test_images_matrixs[index]); // вывод изображения через opencv
+        NN::Visualization::showImageQt(test_images_matrixs[index]); // вывод изображения через opencv
 
     }
 }

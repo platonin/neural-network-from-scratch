@@ -2,103 +2,38 @@
 
 namespace NN {
     namespace Visualization {
-        void showImage(const MatrixXd &image) {
+
+        QImage matrixToQImage(const MatrixXd& matrix) {
+            MatrixXd mat = matrix.transpose();
+            int width = mat.cols();
+            int height = mat.rows();
+            QImage image(width, height, QImage::Format_Grayscale8);
+        
+            for (int y = 0; y < height; ++y)
+                for (int x = 0; x < width; ++x) {
+                    double val = std::clamp(mat(y, x), 0.0, 1.0);
+                    uint8_t pixel = static_cast<uint8_t>(val * 255.0);
+                    image.setPixel(x, y, qRgb(pixel, pixel, pixel));
+                }
+        
+            return image;
+        }
+
+        void showImageQt(const MatrixXd& image) {
+            int argc = 0;
+            char* argv[] = { nullptr };
+            QApplication app(argc, argv);
+        
             MatrixXd mt = image.transpose();
-            Mat img(28, 28, CV_64F, (void*)mt.data());
-            Mat img8bit;
-            img.convertTo(img8bit, CV_8U, 255);
-            imshow("MNIST Image", img8bit);
-            waitKey(0); 
-            // waitKey(1);
-
-            // std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            // std::cout << "Нажмите Enter в консоли, чтобы продолжить..." << std::endl;
-    
-            // std::cin.get();  
-            // destroyWindow("MNIST Image");
+            QImage img = matrixToQImage(mt);
+        
+            QLabel label;
+            label.setPixmap(QPixmap::fromImage(img.scaled(280, 280)));
+            label.setWindowTitle("MNIST Image");
+            label.show();
+        
+            app.exec();
         }
-
-        void showImagesRow(const vector<MatrixXd> &images) {
-            vector<Mat> mats;
-        
-            for (const auto& image : images) {
-                MatrixXd mt = image.transpose();
-                Mat img(28, 28, CV_64F, (void*)mt.data());
-                Mat img8bit;
-                img.convertTo(img8bit, CV_8U, 255); 
-                mats.push_back(img8bit);
-            }
-        
-            Mat result;
-            hconcat(mats, result);
-        
-            imshow("MNIST Row", result);
-            waitKey(0);
-        }
-
-        void showImagesWithLabels(const vector<MatrixXd> &images, const vector<int> &numbers) {
-            vector<Mat> labeledImages;
-        
-            for (size_t i = 0; i < images.size(); ++i) {
-                MatrixXd mt = images[i].transpose();
-                Mat img(28, 28, CV_64F, (void*)mt.data());
-                Mat img8bit;
-                img.convertTo(img8bit, CV_8U, 255);
-        
-                Mat resizedImg;
-                resize(img8bit, resizedImg, Size(56, 56), 0, 0, INTER_NEAREST);
-        
-                Mat labelArea(20, resizedImg.cols, CV_8U, Scalar(255));
-        
-                string label = to_string(numbers[i]);
-                putText(labelArea, label, Point(5, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0), 1);
-        
-                Mat fullBlock;
-                vconcat(resizedImg, labelArea, fullBlock);
-        
-                labeledImages.push_back(fullBlock);
-            }
-            Mat finalImage;
-            hconcat(labeledImages, finalImage);
-
-            imshow("Images with Labels", finalImage);
-            waitKey(0);
-        }
-
-        void showImagesWithTwoNumbers(const vector<MatrixXd> &images, const vector<int> &topNumbers, const vector<int> &bottomNumbers) {
-            vector<Mat> labeledImages;
-        
-            for (size_t i = 0; i < images.size(); ++i) {
-                MatrixXd mt = images[i].transpose();
-                Mat img(28, 28, CV_64F, (void*)mt.data());
-                Mat img8bit;
-                img.convertTo(img8bit, CV_8U, 255);
-        
-                Mat resizedImg;
-                resize(img8bit, resizedImg, Size(56, 56), 0, 0, INTER_NEAREST);
-        
-                Mat topLabel(20, resizedImg.cols, CV_8U, Scalar(255));
-                string topText = to_string(topNumbers[i]);
-                putText(topLabel, topText, Point(5, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0), 1);
-        
-                Mat bottomLabel(20, resizedImg.cols, CV_8U, Scalar(255));
-                string bottomText = to_string(bottomNumbers[i]);
-                putText(bottomLabel, bottomText, Point(5, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0), 1);
-        
-                Mat block;
-                vconcat(topLabel, resizedImg, block);
-                vconcat(block, bottomLabel, block);
-        
-                labeledImages.push_back(block);
-            }
-        
-            Mat finalImage;
-            hconcat(labeledImages, finalImage);
-        
-            imshow("Images with Two Numbers", finalImage);
-            waitKey(0);
-        }
-        
         
     }; // namespace Visualization
 }; // namespace NeuralNetwork
