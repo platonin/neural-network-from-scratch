@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <span>
+#include <filesystem>
 
 using namespace std;
 using namespace Eigen;
@@ -18,6 +19,12 @@ void loadAndPredict() {
     string model_name;
     cin >> model_name;
     string user_model_path = "../models data/" + model_name + ".txt";
+
+    if (!std::filesystem::exists(user_model_path)) {
+        std::cout << "Файл не найден.\n";
+        user_model_path = "../models data/adam_97.14.txt";
+        std::cout << "Используется файл по умолчанию: " << "adam_97.14" << "\n";
+    }
     
     cout << "[*] Загружаем модель...\n";
     NN::NetBuilder builder(784);
@@ -41,7 +48,7 @@ void loadAndPredict() {
         int index;
         cout << "Введите индекс изображения от 0 до 9999 (-1 для выхода): ";
         cin >> index;
-        if (index < 0) break;
+        if (index < 0 || index > 9999) break;
 
         auto result = NN::NumberUtils::predictNumber(test_images[index], net);
         cout << "Предсказание: " << result << "\n";
@@ -58,6 +65,10 @@ NN::Net configureAndBuildNet() {
 
     cout << "Введите количество скрытых слоев: ";
     cin >> num_layers;
+    if (num_layers <= 0) {
+        cout << "Количество слоев должно быть больше 0. Используется 1.\n";
+        num_layers = 1;
+    }
 
     std::vector<SetLayerParams> layers;
 
@@ -65,6 +76,10 @@ NN::Net configureAndBuildNet() {
         int neurons, activation_choice;
         cout << "  Количество нейронов в слое " << i + 1 << ": ";
         cin >> neurons;
+        if (neurons <= 0) {
+            cout << "Количество нейронов должно быть больше 0. Используется 64.\n";
+            neurons = 128;
+        }
         cout << "  Выберите функцию активации:\n"
              << "    1. Sigmoid\n"
              << "    2. ReLU\n"
@@ -89,6 +104,12 @@ NN::Net configureAndBuildNet() {
     int loss_choice;
     cout << "Выберите функцию потерь:\n1. Cross-entropy\n2. MSE\n3. MAE\nВаш выбор: ";
     cin >> loss_choice;
+
+    if (loss_choice < 1 || loss_choice > 3) {
+        cout << "Неверный выбор. Используется Cross-entropy.\n";
+        loss_choice = 1;
+    }
+
     LossFunc loss;
     switch (loss_choice) {
         case 1: loss = LossCreation::getCrossEntropy(); break;
@@ -102,10 +123,15 @@ NN::Net configureAndBuildNet() {
     double lr, beta;
     cout << "Выберите оптимизатор:\n1. SGD\n2. Momentum\n3. Adam\n4. RMSprop\nВаш выбор: ";
     cin >> opt_choice;
+    if (opt_choice < 1 || opt_choice > 4) {
+        cout << "Неверный выбор. Используется SGD.\n";
+        opt_choice = 1;
+    }
     cout << "Введите скорость обучения: ";
     cin >> lr;
     cout << "Введите beta (0 если не используется): ";
     cin >> beta;
+
 
     Optimizer opt;
     switch (opt_choice) {
@@ -150,10 +176,22 @@ void trainNet() {
     int batch_size, epochs, train_size;
     cout << "Введите размер батча: ";
     cin >> batch_size;
+    if (batch_size <= 0 || batch_size > 60000) {
+        cout << "Размер батча должен быть больше 0. Используется 10.\n";
+        batch_size = 10;
+    }
     cout << "Введите количество эпох: ";
     cin >> epochs;
+    if (epochs <= 0) {
+        cout << "Количество эпох должно быть больше 0. Используется 1.\n";
+        epochs = 1;
+    }
     cout << "Введите размер обучающей выборки (макс " << train_images.size() << "): ";
     cin >> train_size;
+    if (train_size <= 0 || train_size > train_images.size()) {
+        cout << "Размер обучающей выборки должен быть больше 0 и меньше " << train_images.size() << ". Используется " << train_images.size() << ".\n";
+        train_size = train_images.size();
+    }
 
     vector<VectorXd> X(train_images.begin(), train_images.begin() + train_size);
     vector<VectorXd> Y(train_labels.begin(), train_labels.begin() + train_size);

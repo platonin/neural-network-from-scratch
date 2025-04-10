@@ -8,7 +8,6 @@
 #include "Optimizer.h"
 #include "Logger.h"
 
-#include <iomanip> // это для вывода, надо убрать потом будет 
 #include <memory>
 #include <vector>
 #include <string>

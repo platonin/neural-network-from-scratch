@@ -11,11 +11,24 @@ Eigen::MatrixXd Layer::initializeWeightsXavierNormal() {
     return weights;
 }
 
+Eigen::MatrixXd Layer::initializeWeightsHeNormal() {
+    double stddev = std::sqrt(2.0 / inputSize_);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<double> dis(0, stddev);
+    
+    Eigen::MatrixXd weights = Eigen::MatrixXd::NullaryExpr(outputSize_, inputSize_, [&]() { return dis(gen); });
+    return weights;
+}
+
+
 Layer::Layer() = default;
 
 Layer::Layer(int inputSize, int outputSize, ActivationFunc func) 
     : inputSize_(inputSize), outputSize_(outputSize), W_(outputSize, inputSize), b_(outputSize), activationFunction_(func) {
     W_.setRandom();
+    // W_ = initializeWeightsXavierNormal();
+    // W_ = initializeWeightsHeNormal();
     b_.setZero();
 }
 

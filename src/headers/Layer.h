@@ -17,6 +17,7 @@ private:
     ActivationFunc activationFunction_;
 
     Eigen::MatrixXd initializeWeightsXavierNormal();
+    Eigen::MatrixXd initializeWeightsHeNormal();
 
 public:
     Layer();

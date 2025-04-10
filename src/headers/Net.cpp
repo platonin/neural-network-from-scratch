@@ -99,6 +99,9 @@ namespace NN {
     }
 
     void Net::train(span<VectorXd> X, span<VectorXd> Y, int epochs, int batchSize) {
+        if (X.size() != Y.size() || X.size() == 0 || Y.size() == 0 || X[0].size() != layers_[0]->getInputSize() || Y[0].size() != layers_[numbersOfLayers_-1]->getOutputSize()) {
+            throw std::invalid_argument("Некорректные данные.");
+        }
         int numberOfBatch = X.size()/batchSize;
         for (int numberEpoch = 1; numberEpoch <= epochs; ++numberEpoch) {
             Logger::printEpoch(numberEpoch);
