@@ -84,6 +84,7 @@ NN::Net configureAndBuildNet() {
              << "    1. Sigmoid\n"
              << "    2. ReLU\n"
              << "    3. LeakyReLU\n"
+             << "    3. Softmax\n"
              << "Ваш выбор: ";
         cin >> activation_choice;
 
@@ -92,6 +93,7 @@ NN::Net configureAndBuildNet() {
             case 1: act = ActivationCreation::getSigmod(); break;
             case 2: act = ActivationCreation::getReLU(); break;
             case 3: act = ActivationCreation::getLeakyReLU(); break;
+            case 4: act = ActivationCreation::getSoftmax(); break;
             default: cout << "Неверный выбор. Используется Sigmoid.\n"; act = ActivationCreation::getSigmod(); break;
         }
 
